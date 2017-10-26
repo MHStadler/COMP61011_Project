@@ -1,12 +1,14 @@
 classdef fMeasureCalculator
-    %UNTITLED Summary of this class goes here
-    %   Detailed explanation goes here
-    
     properties
         betaFactor = 1;
     end
     
     methods
+        function calc = withBetaFactor(obj, bFactor)
+            obj.betaFactor = bFactor;
+            calc = obj;
+        end
+        
         function preSplitFMeasure = calculatePreSplitValue(obj, exampleCount, conditionPositive, conditionNegative)
             predictedLabel = 0;
             
@@ -22,10 +24,9 @@ classdef fMeasureCalculator
             end
         end
         
-        function postSplitFMeasure = getPostSplitValue(obj, leftValues, leftLabels, rightValues, rightLabels)
+        function postSplitFMeasure = getPostSplitValue(obj, leftLabels, rightLabels)
             classifiedAsPositiveCount = 0;
             correctlyClassifiedAsPositiveCount = 0;
-            classPositiveCount = 0;
             
             leftCount = size(leftLabels, 1);
             rightCount = size(rightLabels, 1);
