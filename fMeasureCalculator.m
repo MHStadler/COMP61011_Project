@@ -39,19 +39,29 @@ classdef fMeasureCalculator
             
             classPositiveCount = yLeft1 + yRight1;
             
-            if(yLeft1 > yLeft0)
+            if(yLeft1 >= yLeft0)
                 classifiedAsPositiveCount = classifiedAsPositiveCount + leftCount;
                 
                 correctlyClassifiedAsPositiveCount = correctlyClassifiedAsPositiveCount + nnz(leftLabels(:) == 1); 
             end
             
-            if(yRight1 > yRight0)
+            if(yRight1 >= yRight0)
                 classifiedAsPositiveCount = classifiedAsPositiveCount + rightCount;
                 
                 correctlyClassifiedAsPositiveCount = correctlyClassifiedAsPositiveCount + nnz(rightLabels(:) == 1); 
             end
             
             postSplitFMeasure = obj.calculateFMeasure(correctlyClassifiedAsPositiveCount, classifiedAsPositiveCount, classPositiveCount);
+        end
+        
+        function [shouldSplit, newBestMeasure] = assessSplit(obj, preSplitMeasure, currBestSplitMeasure, newSplitMeasure)
+            if(newSplitMeasure > currBestSplitMeasure)
+                shouldSplit = true;
+                newBestMeasure = newSplitMeasure;
+            else
+                shouldSplit = false;
+                newBestMeasure = currBestSplitMeasure;
+            end
         end
         
         function fMeasure = calculateFMeasure(obj, correctPositive, classifiedAsPositive, classPositiveCount)

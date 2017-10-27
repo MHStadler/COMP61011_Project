@@ -5,6 +5,7 @@ classdef decisionTree
     properties
         %Calculator used to quantify a potential split - uses fMeasure as
         %default
+        %calculator = mutualInformationCalculator();
         calculator = fMeasureCalculator();
         
         %max amount of tree levels
@@ -100,7 +101,7 @@ classdef decisionTree
             
             %Calc label for this model - positive if there is more positive
             %items than negative
-            if(obj.classPositiveCount > obj.classNegativeCount)
+            if(obj.classPositiveCount >= obj.classNegativeCount)
                 obj.predictedLabel = 1;
             else
                 obj.predictedLabel = 0;
@@ -128,8 +129,7 @@ classdef decisionTree
             %preSplit
             obj.preSplitMeasure = obj.calculator.calculatePreSplitValue(obj.exampleCount, obj.classPositiveCount, obj.classNegativeCount);
             
-            %Keeps track of the highest increase in value post split
-            maxMeasureIncrease = 0;
+            bestMeasure = -1;
             
             %Check every feature & every value in them for bestSplitValues
             for feature=1:obj.featureCount
@@ -138,31 +138,25 @@ classdef decisionTree
                 for example=1:obj.exampleCount
                     testSplitValue = featureVector(example);
 
-                    %Use the given calculator to calculate the value of
-                    %this potential split
-                    [splitMeasure, leftValues, leftValuesLabels, rightValues, rightValuesLabels] = obj.assessSplitOnValue(featureVector, testSplitValue);
-                
-                    measureIncrease = abs(splitMeasure - obj.preSplitMeasure);
+                    [leftValues, splitleftLabels, rightValues, splitRightLabels] = obj.splitOnValue(featureVector, testSplitValue);
+            
+                    if(~isempty(leftValues) && ~isempty(rightValues))                    
+                        splitMeasure = obj.calculator.getPostSplitValue(splitleftLabels, splitRightLabels);  
                     
-                    newSplit = false;
-                    
-                    if(measureIncrease > maxMeasureIncrease)
-                        newSplit = true;
-                    elseif(measureIncrease == maxMeasureIncrease && isempty(obj.leftData) || isempty(obj.rightData))
-                        newSplit = true;
-                    end
-                    
-                    if(newSplit)
-                        maxMeasureIncrease = measureIncrease;
+                        [shouldSplit, newBestMeasure] = obj.calculator.assessSplit(obj.preSplitMeasure, bestMeasure, splitMeasure);
                         
-                        obj.splitValue = testSplitValue;
-                        obj.splitFeature = feature;
-        
-                        obj.leftData = leftValues;
-                        obj.leftLabels = leftValuesLabels;
-                        
-                        obj.rightData = rightValues;
-                        obj.rightLabels = rightValuesLabels;
+                        if(shouldSplit)
+                            bestMeasure = newBestMeasure;
+
+                            obj.splitValue = testSplitValue;
+                            obj.splitFeature = feature;
+
+                            obj.leftData = leftValues;
+                            obj.leftLabels = splitleftLabels;
+
+                            obj.rightData = rightValues;
+                            obj.rightLabels = splitRightLabels;
+                        end
                     end
                 end
             end
@@ -175,12 +169,6 @@ classdef decisionTree
             end
             
             trainedModel = obj;
-        end
-        
-        function [splitMeasure, leftValues, leftLabels, rightValues, rightLabels] = assessSplitOnValue(obj, featureVector, testSplitValue)
-            [leftValues, leftLabels, rightValues, rightLabels] = obj.splitOnValue(featureVector, testSplitValue);
-            
-            splitMeasure = obj.calculator.getPostSplitValue(leftLabels, rightLabels);  
         end
           
         function [leftValues, leftLabels, rightValues, rightLabels] = splitOnValue(obj, featureVector, testSplitValue)

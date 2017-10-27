@@ -25,11 +25,27 @@ classdef mutualInformationCalculator
 			postSplitEntropy = (leftCount/count) * leftEntropy + (rightCount/count)  * rightEntropy;
         end
         
+        function [shouldSplit, newBestMeasure] = assessSplit(obj, preSplitMeasure, currBestSplitMeasure, newSplitMeasure)
+            measureDifference = preSplitMeasure - newSplitMeasure;
+            
+            if(measureDifference > currBestSplitMeasure) 
+                shouldSplit = true;
+                newBestMeasure = measureDifference;
+            else
+                shouldSplit = false;
+                newBestMeasure = measureDifference;
+            end
+        end
+        
         function entropy = calculateEntropy(obj, count, conditionPositive, conditionNegative)
 			oddsPositive = conditionPositive / count;
 			oddsNegative = conditionNegative / count;
 		
-			entropy = -1 * (log2(oddsPositive) * oddsPositive + log2(oddsNegative) * oddsNegative);
+            if(oddsPositive == 0 || oddsNegative == 0)
+                entropy = 0;
+            else
+                entropy = -1 * (log2(oddsPositive) * oddsPositive + log2(oddsNegative) * oddsNegative);
+            end
 		end
     end
 end
