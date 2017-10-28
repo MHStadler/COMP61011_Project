@@ -2,7 +2,7 @@ function area = rocCurve(result)
 
 probabilities = result.probs;
 
-resultSize = size(result.probs, 1)
+resultSize = size(result.probs, 1);
 
 for i=1:resultSize
     probabilities(i, 2) = i;
@@ -20,7 +20,7 @@ FP = 0;
 prevVal = -1;
 
 %2012a fix - sort by dimension 1, use - to get descending
-sortedProbabilities = sortrows(probabilities, -1)
+sortedProbabilities = sortrows(probabilities, -1);
 
 count = 0;
 
@@ -58,7 +58,7 @@ count = count + 1;
 xVals(count, 1) = FP/N;
 yVals(count, 1) = TP/P;
 
-A = A + calcTrapezoidArea(N, FPPrev, N, TPPrev);
+A = A + calcTrapezoidArea(N, FPPrev, P, TPPrev);
 
 A = A / (N * P);
 

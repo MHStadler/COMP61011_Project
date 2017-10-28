@@ -55,13 +55,25 @@ classdef fMeasureCalculator
         end
         
         function [shouldSplit, newBestMeasure] = assessSplit(obj, preSplitMeasure, currBestSplitMeasure, newSplitMeasure)
-            if(newSplitMeasure > currBestSplitMeasure)
-                shouldSplit = true;
+           % val = abs(preSplitMeasure - newSplitMeasure);
+            
+           % if(val > currBestSplitMeasure) 
+            %    shouldSplit = true;
+            %    newBestMeasure = val;
+           % else
+             %   shouldSplit = false;
+             %   newBestMeasure = currBestSplitMeasure;
+           % end
+            
+            
+            
+           if(newSplitMeasure > currBestSplitMeasure)
+               shouldSplit = true;
                 newBestMeasure = newSplitMeasure;
             else
                 shouldSplit = false;
-                newBestMeasure = currBestSplitMeasure;
-            end
+               newBestMeasure = currBestSplitMeasure;
+            end 
         end
         
         function fMeasure = calculateFMeasure(obj, correctPositive, classifiedAsPositive, classPositiveCount)
