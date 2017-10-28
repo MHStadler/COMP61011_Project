@@ -6,7 +6,7 @@ classdef decisionTree
         %Calculator used to quantify a potential split - uses fMeasure as
         %default
         %calculator = mutualInformationCalculator();
-        calculator = fMeasureCalculator();
+        calculator = otherFMeasureCalculator();
         
         %max amount of tree levels
         depth = 10;

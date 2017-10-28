@@ -39,13 +39,13 @@ classdef fMeasureCalculator
             
             classPositiveCount = yLeft1 + yRight1;
             
-            if(yLeft1 >= yLeft0)
+            if(yLeft1 > yLeft0)
                 classifiedAsPositiveCount = classifiedAsPositiveCount + leftCount;
                 
                 correctlyClassifiedAsPositiveCount = correctlyClassifiedAsPositiveCount + nnz(leftLabels(:) == 1); 
             end
             
-            if(yRight1 >= yRight0)
+            if(yRight1 > yRight0)
                 classifiedAsPositiveCount = classifiedAsPositiveCount + rightCount;
                 
                 correctlyClassifiedAsPositiveCount = correctlyClassifiedAsPositiveCount + nnz(rightLabels(:) == 1); 

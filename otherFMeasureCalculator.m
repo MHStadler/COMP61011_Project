@@ -11,9 +11,9 @@ classdef otherFMeasureCalculator
         
         function preSplitFMeasure = calculatePreSplitValue(obj, exampleCount, conditionPositive, conditionNegative)
             if(conditionPositive > conditionNegative) 
-                preSplitFMeasure = obj.calculateFMeasure(conditionPositive, conditionNegative);
+                preSplitFMeasure = obj.calculateFMeasure(conditionPositive, conditionNegative, 0);
             else
-                preSplitFMeasure = obj.calculateFMeasure(conditionNegative, conditionPositive);
+                preSplitFMeasure = obj.calculateFMeasure(conditionNegative, conditionPositive, 0);
             end
         end
         
@@ -30,15 +30,15 @@ classdef otherFMeasureCalculator
             count = leftCount + rightCount;
             
             if(yLeft1 > yLeft0)
-                fMeasureLeft = obj.calculateFMeasure(yLeft1, yLeft0);
+                fMeasureLeft = obj.calculateFMeasure(yLeft1, yLeft0, yRight1);
             else
-                fMeasureLeft = obj.calculateFMeasure(yLeft0, yLeft1);
+                fMeasureLeft = obj.calculateFMeasure(yLeft0, yLeft1, yRight0);
             end
             
             if(yRight1 > yRight0)
-                fMeasureRight = obj.calculateFMeasure(yRight1, yRight0);
+                fMeasureRight = obj.calculateFMeasure(yRight1, yRight0, yLeft1);
             else
-                fMeasureRight = obj.calculateFMeasure(yRight0, yRight1);
+                fMeasureRight = obj.calculateFMeasure(yRight0, yRight1, yLeft0);
             end
             
             postSplitFMeasure = (leftCount / count) * fMeasureLeft + (rightCount / count) * fMeasureRight;
@@ -54,11 +54,11 @@ classdef otherFMeasureCalculator
             end
         end
         
-        function fMeasure = calculateFMeasure(obj, TP, FP)
+        function fMeasure = calculateFMeasure(obj, TP, FP, FN)
             if(TP == 0) 
                 fMeasure = 0;
             else
-                fMeasure = (1 + obj.betaFactor^2) * TP / ((1 + obj.betaFactor^2) * TP + FP);
+                fMeasure = (1 + obj.betaFactor^2) * TP / ((1 + obj.betaFactor^2) * TP + FN + FP);
             end
         end
     end
