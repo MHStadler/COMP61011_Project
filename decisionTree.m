@@ -101,7 +101,7 @@ classdef decisionTree
             
             %Calc label for this model - positive if there is more positive
             %items than negative
-            if(obj.classPositiveCount >= obj.classNegativeCount)
+            if(obj.classPositiveCount > obj.classNegativeCount)
                 obj.predictedLabel = 1;
             else
                 obj.predictedLabel = 0;
