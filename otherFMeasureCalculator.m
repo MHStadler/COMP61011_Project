@@ -45,9 +45,12 @@ classdef otherFMeasureCalculator
         end
         
         function [shouldSplit, newBestMeasure] = assessSplit(obj, preSplitMeasure, currBestSplitMeasure, newSplitMeasure)
-            if(newSplitMeasure > currBestSplitMeasure)
+            splitValue = abs(preSplitMeasure - newSplitMeasure);
+            
+            
+            if(splitValue > currBestSplitMeasure)
                 shouldSplit = true;
-                newBestMeasure = newSplitMeasure;
+                newBestMeasure = splitValue;
             else
                 shouldSplit = false;
                 newBestMeasure = currBestSplitMeasure;
