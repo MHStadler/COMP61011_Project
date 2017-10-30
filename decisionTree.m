@@ -196,10 +196,10 @@ classdef decisionTree
             end
             
             % Delete the bits of the arrays we didn't use
-            leftValues(leftCount+1:obj.exampleCount) = [];
+            leftValues(leftCount+1:obj.exampleCount, :) = [];
             leftLabels(leftCount+1:obj.exampleCount) = [];
-            rightValues(leftCount+1:obj.exampleCount) = [];
-            rightLabels(leftCount+1:obj.exampleCount) = [];
+            rightValues(rightCount+1:obj.exampleCount, :) = [];
+            rightLabels(rightCount+1:obj.exampleCount) = [];
         end
         
         function result = test(obj, data, labels)
