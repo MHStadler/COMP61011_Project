@@ -172,10 +172,11 @@ classdef decisionTree
         end
           
         function [leftValues, leftLabels, rightValues, rightLabels] = splitOnValue(obj, featureVector, testSplitValue)
-            leftValues = [];
-            leftLabels = [];
-            rightValues = [];
-            rightLabels = [];
+            % Preallocate more than we need
+            leftValues = zeros(obj.exampleCount,obj.featureCount);
+            leftLabels = zeros(obj.exampleCount,1);
+            rightValues = zeros(obj.exampleCount,obj.featureCount);
+            rightLabels = zeros(obj.exampleCount,1);
             
             rightCount = 0;
             leftCount = 0;
@@ -193,6 +194,12 @@ classdef decisionTree
                     leftLabels(leftCount, 1) = obj.trainingLabels(i);
                 end
             end
+            
+            % Delete the bits of the arrays we didn't use
+            leftValues(leftCount+1:obj.exampleCount) = [];
+            leftLabels(leftCount+1:obj.exampleCount) = [];
+            rightValues(leftCount+1:obj.exampleCount) = [];
+            rightLabels(leftCount+1:obj.exampleCount) = [];
         end
         
         function result = test(obj, data, labels)
@@ -239,4 +246,3 @@ classdef decisionTree
         end
     end
 end
-
