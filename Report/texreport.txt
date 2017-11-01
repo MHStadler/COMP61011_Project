@@ -25,6 +25,8 @@
 \usepackage{apacite}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
+\usepackage{graphicx}
+\graphicspath{ {images/} }
 
 \usepackage{titlesec}
 
@@ -261,7 +263,43 @@ We use receiver operating characteristics (ROC) techniques, namely ROC graphs an
 
 Each model yields one point in ROC space, with $x$ being the FP rate and $y$ the TP rate, giving us three graphs:
 
+\begin{figure}[h]
+\caption{Breast ROC Graph}
+\centering
+\includegraphics[width=0.5\textwidth]{breastROCSpace}
+\end{figure}
+
+\begin{figure}[h]
+\caption{Heart ROC Graph}
+\centering
+\includegraphics[width=0.5\textwidth]{heartROCSpace}
+\end{figure}
+
+\begin{figure}[h]
+\caption{PopFailure ROC Graph}
+\centering
+\includegraphics[width=0.5\textwidth]{popFailureROCSpace}
+\end{figure}
+
 To build the ROC curve of each model we use the algorithm introduced by Fawecett (2006). As our decision trees are discrete, we use the deciding leaf's class proportions to also calculate a Laplace corrected scoring classifier (Provost and Domingos, 2001) when classifying an example. Those scores are then used to generate the ROC curve. Additionally, we calculated the area under the curve (AUC) to allow for an easier direct comparison.
+
+\begin{figure}[h]
+\caption{Breast ROC Curve}
+\centering
+\includegraphics[width=0.5\textwidth]{breastROCCurves}
+\end{figure}
+
+\begin{figure}[h]
+\caption{Heart ROC Curve}
+\centering
+\includegraphics[width=0.5\textwidth]{heartROCCurves}
+\end{figure}
+
+\begin{figure}[h]
+\caption{PopFailure ROC Curve}
+\centering
+\includegraphics[width=0.5\textwidth]{popfailureROCCurves}
+\end{figure}
 
 \subsection{Placeholder}
 
