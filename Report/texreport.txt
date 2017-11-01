@@ -71,15 +71,15 @@ it follows that the F$_\beta$-measure is the weighted harmonic mean of the two
 
 \begin{equation}F_\beta =\frac{(1 + \beta^2) p r}{\beta^2 p + r} \Leftrightarrow   \frac{(1 + \beta^2)}{\frac{\beta^2}{r} + \frac{1}{p}}\end{equation} 
 
-Precision is the ratio of $TP$ to the number of examples classified as positive ($Y$), and recall the ratio of TP to the overall number of positives ($P$): \begin{math}p = \frac{TP}{Y} \Leftrightarrow \frac{TP}{TP + FP}\end{math} and \begin{math}r = \frac{TP}{P} \Leftrightarrow \frac{TP}{TP + FN}\end{math}. This allows us to express the F$_\beta$-measure based on TP, FP and FN:
+Informally, precision is the ratio of $TP$ to the number of examples classified as positive ($Y$), and recall the ratio of TP to the overall number of positives ($P$): \begin{math}p = \frac{TP}{Y} \Leftrightarrow \frac{TP}{TP + FP}\end{math} and \begin{math}r = \frac{TP}{P} \Leftrightarrow \frac{TP}{TP + FN}\end{math}. This allows us to express the F$_\beta$-measure based on TP, FP and FN:
 
-\begin{equation}F_\beta =\frac{(1 + \beta^2)}{\frac{\beta^2}{\frac{TP}{TP + FN}} + \frac{1}{\frac{TP}{TP + FP}}} \Leftrightarrow \frac{(1 + \beta^2)TP}{(1 + \beta^2)TP + \beta^2FN + FP} \end{equation} 
+\begin{equation}F_\beta =\frac{(1 + \beta^2)}{\frac{\beta^2 (TP+FN)}{TP} + \frac{TP+FP}{TP}} \Leftrightarrow \frac{(1 + \beta^2)TP}{(1 + \beta^2)TP + \beta^2FN + FP} \end{equation} 
 
-We see, that a classifier with a high F$_\beta$-measure correctly classifies a lot of class 1 examples correctly, while making few classification errors. The $\beta$ factor gives weight to how much the classifier gets punished for misclassifying class 1 examples. While in praxis it is mostly just left at its default 1 (also called the F$_1$-score), others that sometimes see use are the F$_0.5$ and F$_2$ score. From here on out, we will refer to the F$_1$-score as simply the F-score.
+We see, that a classifier with a high F$_\beta$-measure correctly classifies a lot of class 1 examples correctly, while making few classification errors. The $\beta$ factor gives weight to how much the classifier gets punished for misclassifying class 1 examples, though in praxis it is mostly just left at its default 1, also called the F$_1$-score or just F-measure \cite{Nan2012}.
 
 \subsection{The F$_\beta$-measure as split-criteria}
 
-The F-measure as a learning criteria has successfully been employed before, in varying ways for different models \cite{Dembczynski2013}. For this analysis we use the F-measure as split criteria in a decision tree.
+The F-measure as a learning criteria has successfully been employed before, in varying ways for different models \cite{Dembczynski2013,Sawade2010}. For this analysis we use the F-measure as split criteria in a decision tree.
 
 Our first approach was to maximize the overall F-measure after a split. Both sides of a split were first assigned a label, if the count of class 1 examples on one side, outweighed the class 0 count, we considered it to predict class 1, otherwise class 0.
 
