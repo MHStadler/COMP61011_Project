@@ -28,11 +28,14 @@ for i=1:resultsSize
         end
     end
     
-    rocPointsX(i, 1) = FP / N;
-    rocPointsY(i, 1) = TP / P;
+    FPRate = FP/N;
+    TPRate = TP/P;
+    
+    rocPointsX(i, 1) = FPRate;
+    rocPointsY(i, 1) = TPRate;
 end
 
-scatter(rocPointsX, rocPointsY, 16);
+scatter(rocPointsX, rocPointsY);
 hold on;
 plot([0, 1], [0, 1]);
 axis([0, 1, 0, 1]);
@@ -40,6 +43,9 @@ axis([0, 1, 0, 1]);
 for i=1:resultsSize
     text(rocPointsX(i) + 0.01, rocPointsY(i) + 0.01, resultLabels(i));
 end
+
+xlabel('FP-rate');
+ylabel('TP-rate');
 
 hold off;
 

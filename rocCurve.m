@@ -62,7 +62,10 @@ A = A + calcTrapezoidArea(N, FPPrev, P, TPPrev);
 
 A = A / (N * P);
 
-plot(xVals, yVals);
+plot(xVals, yVals, 'marker', 'x');
+
+xlabel('FP-rate');
+ylabel('TP-rate');
 
 area = A;
 
