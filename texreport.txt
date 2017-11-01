@@ -161,6 +161,27 @@ The new metric is the sum of the weighted F-score of both sides, and the split w
 
 After some preliminary testing we found the second algorithm to outperform the first. For brevity's sake we will therefore focus on the second one going forward.
 
+\section{Splitting on Impurity Metrics}
+
+In order to compare the performance of F-measure splitting to some baseline, we evaluated the same datasets with two more commonly used split-criteria, Information Gain and Gini Index.
+
+\subsection{Information Gain}
+
+Information Gain (IG) is a measure of difference between the entropy the data prior to splitting, and the combined entropy of the two sides after the split. A collection of data is given an entropy $I_H$ according to the equation:
+\begin{equation}I_H = \sum_{j}p_jlogp_j\end{equation}
+
+Where $p_j$ is the probability of a random example in the data having the label $j$. The entropies of the two sides of data after the split $l$ and $r$ are then combined and the Information Gain over the pre-split data $p$ calculated according to
+\begin{equation} \label{eq:IG} IG(D_p,f) = I_h(D_p)-\frac{N_l}{N_p}I_h(D_l)-\frac{N_r}{N_p}I_h(D_r)\end{equation}
+
+\subsection{Gini Index}
+The Gini Index is an alternative measure Impurity which is similar to Information Gain but with some notable differences. Each side of the split data is given a Gini Index $I_G$ according to the equation:
+\begin{equation}I_H = 1-\sum_{j}p_j^2\end{equation}
+The impurities of the two sides are then combined and compared to the pre-split data using the same method used for Information Gain (\ref{eq:IG}).
+
+Because Gini Index calculations don’t involve logarithms, they are slightly faster to compute, and a Gini Index is will always be in the range 0-1, regardless of how many labels exist in the dataset.
+
+A more detailed discussion of the differences between Information Gain and Gini Index is described by \citeA{Raileanu2004}. For the purposes of this study, both Information Gain and Gini Index are used as comparators to splitting based on F Measure, such that the average performance of impurity metrics can be compared to the more results-based F Measure.
+
 \section{Experiments}
 
 In this section we want to show the results we got from testing out the three different split criteria on the different data sets, before we go on to comparing their performances.
@@ -360,6 +381,9 @@ reference flush against the left margin and subsequent lines indented
 by 1/8~inch. Below are example references for a conference paper, book
 chapter, journal article, dissertation, book, technical report, and
 edited volume, respectively.
+
+% DC Citations
+\nocite{Raileanu2004}
 
 \nocite{ChalnickBillman1988a}
 \nocite{Feigenbaum1963a}
