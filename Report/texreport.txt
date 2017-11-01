@@ -30,12 +30,6 @@
 
 \usepackage{titlesec}
 
-\titleformat*{\section}{\LARGE\bfseries}
-\titleformat*{\subsection}{\Large\bfseries}
-\titleformat*{\subsubsection}{\large\bfseries}
-\titleformat*{\paragraph}{\large\bfseries}
-\titleformat*{\subparagraph}{\large\bfseries}
-
 \title{An Experimental Analysis of Decision Trees that split on the F-measure}
  
 \author{{\large \bf Michael Stadler (MAG@Macc.Wisc.Edu)} \\
@@ -48,7 +42,7 @@
 \maketitle
 
 
-\begin{abstract}\normalsize
+\begin{abstract}
 Abstract here
 
 \textbf{Keywords:} 
@@ -57,56 +51,47 @@ Decision Tree; F-Measure; Information Gain; Gini-Index
 
 \section{Introduction}
 
-Introduction Here
+The F-measure is a commonly used metric when assessing a classifier's performance \cite{Dembczynski2011}.
 
 \section{Splitting on the F$_\beta$-measure}
 
 This section first briefly introduces the basics of the F-measure and then goes on to illustrate how we used it as split-criteria in a decision tree.
 
 \subsection{The F$_\beta$-measure}
-There is different ways of attempting to evaluate a classifier’s performance. An easy way of getting an idea of it, is to check how many examples of the test data were correctly classified or miss classified. 
+In binary classifications there are four possible results when assessing a classification result. Examples of class 1 are called true positives ($TP$) if classified correctly, or false positives ($FP$) otherwise. Same goes for class 0, but in this case we speak of true negatives ($TN$) and false negatives ($FN$) \cite{Fawcett2006}.
 
-For binary classifications there are four possible results when assessing a classification result. If the example is of class 1 and correctly classified as such, it is considered a true positive ($TP$). Same goes for class 0, though in this case we speak of a true negative ($TN$). Miss classifications are referred to as false positive ($FP$), considered class 1 but is class 0, and false negative ($FN$), considered class 1 but is class 0, respectively. 
-
-The resulting confusion matrix is the basis for many performance metrics, such as the F$_\beta$-measure, formally written as:
+The resulting confusion matrix is the basis for many performance metrics, such as the F$_\beta$-measure, formally written as \cite{Nan2012}:
 \begin{equation}F_\beta = \frac{(1 + \beta^2) \sum_{i}s_iy_i}{\beta^2 \sum_{i}y_i + \sum_{i}s_i}\end{equation}
 
-With the formal definitions for precision ($p$) and recall ($r$) 
+With the formal definitions for precision ($p$) and recall ($r$) \cite{Nan2012}:
 
 \begin{displaymath}p = \frac{\sum_{i}s_iy_i}{\sum_{i}s_i} r = \frac{\sum_{i}s_iy_i}{\sum_{i}y_i}\end{displaymath}
 
-we can see that the F$_\beta$-measure is the weighted harmonic mean of the two
+it follows that the F$_\beta$-measure is the weighted harmonic mean of the two
 
 \begin{equation}F_\beta =\frac{(1 + \beta^2) p r}{\beta^2 p + r} \Leftrightarrow   \frac{(1 + \beta^2)}{\frac{\beta^2}{r} + \frac{1}{p}}\end{equation} 
 
-Informally, precision is the ratio of correctly classified positives to the number of examples classified as positive ($Y$), and recall the ratio of correctly classified positives to the overall number of positives ($P$). Going back to the binary classifier confusion matrix we see that \begin{math}p = \frac{TP}{Y} \Leftrightarrow \frac{TP}{TP + FP}\end{math} and \begin{math}r = \frac{TP}{P} \Leftrightarrow \frac{TP}{TP + FN}\end{math}
-
-This allows us to express the F$_\beta$-measure based on TP, FP and FN:
+Precision is the ratio of $TP$ to the number of examples classified as positive ($Y$), and recall the ratio of TP to the overall number of positives ($P$): \begin{math}p = \frac{TP}{Y} \Leftrightarrow \frac{TP}{TP + FP}\end{math} and \begin{math}r = \frac{TP}{P} \Leftrightarrow \frac{TP}{TP + FN}\end{math}. This allows us to express the F$_\beta$-measure based on TP, FP and FN:
 
 \begin{equation}F_\beta =\frac{(1 + \beta^2)}{\frac{\beta^2}{\frac{TP}{TP + FN}} + \frac{1}{\frac{TP}{TP + FP}}} \Leftrightarrow \frac{(1 + \beta^2)TP}{(1 + \beta^2)TP + \beta^2FN + FP} \end{equation} 
 
-Now we can see, that a classifier with a high F$_\beta$-measure correctly classifies a lot of class 1 examples correctly, while making overall few classification errors. The number of correctly classified class 0 examples only affects the measure indirectly through the minimization of the overall error.
-
-The $\beta$ factor gives additional weight to how much the classifier gets punished for misclassifying class 1 examples. While in praxis it is mostly just left at its default 1, giving equal weight to TP and FN (also called the F$_1$-score), others that sometimes see use are the F$_0.5$ and F$_2$ score. From here on out, we will refer to the F$_1$-score as simply the F-measure.
+We see, that a classifier with a high F$_\beta$-measure correctly classifies a lot of class 1 examples correctly, while making few classification errors. The $\beta$ factor gives weight to how much the classifier gets punished for misclassifying class 1 examples. While in praxis it is mostly just left at its default 1 (also called the F$_1$-score), others that sometimes see use are the F$_0.5$ and F$_2$ score. From here on out, we will refer to the F$_1$-score as simply the F-score.
 
 \subsection{The F$_\beta$-measure as split-criteria}
 
-Using the F-measure as a learning criteria is nothing new and has successfully been employed before, in varying ways for different models. For this analysis we attempt to use the F-measure as decision criteria in a decision tree. For this we considered two approaches.
+The F-measure as a learning criteria has successfully been employed before, in varying ways for different models \cite{Dembczynski2013}. For this analysis we use the F-measure as split criteria in a decision tree.
 
-The first was to maximize the overall metric of the model after a split. Both sides of each considered split were first assigned a label based on a simple likeliness. If the count of class 1 examples on one side, outweighed the class 0 count, we considered it to predict class 1, otherwise class 0.
+Our first approach was to maximize the overall F-measure after a split. Both sides of a split were first assigned a label, if the count of class 1 examples on one side, outweighed the class 0 count, we considered it to predict class 1, otherwise class 0.
 
-From there we can calculate the values for $TP$, $FN$ and $FP$. If a split is considered to be positive then all of its positive classes are $TP$ and all of its negative classes are $FP$. Otherwise all of its positives are $FN$. After adding the values up for both sides of the split, we can calculate the F$_\beta$-measure for this split. The split with the highest value is then used.
+If a split is considered to be positive then all of its positive examples are $TP$ and all of its negatives are $FP$. Otherwise all of its positives are $FN$. After adding the values up for both sides of the split, we can calculate the F-measure for this split. The split with the highest value is then used.
 
 \begin{algorithm}
 \caption{Maximum F-measure across a split}
-p and n, the number of positive and negative examples on the left side of the split; !p and !n, the number of positive and negative examples on the right side of the split;
+p and n, the number of positive and negative examples on the left side of the split; !p and !n, the number of positive and negative examples on the other side;
 \begin{algorithmic}[1]
 \Function{F-Measure}{$p, n, !p, !n$}
 
-\State $TP, Fp, FN \gets 0$
-
-\State $left \gets p + n$
-\State $right \gets !p + !n$
+\State $TP, FP, FN \gets 0$
 
 \If{$p > n$}
 \State $TP \gets TP + p$
@@ -129,13 +114,13 @@ p and n, the number of positive and negative examples on the left side of the sp
 \end{algorithmic}
 \end{algorithm}
 
-An issue we found with this, is that it heavily emphasizes examples of class 1. Therefore a split that would lead to a high purity of class 0 on one side, is not recognized as valuable if it does not also yield a high number of true positives. This becomes a problem when class 1 and class 0 examples become harder to differentiate as the number of examples per leaf shrinks.
+This heavily emphasizes examples of class 1; a split that would lead to a high purity of class 0 on one side, is not recognized as valuable if it does not also yield a high number of true positives. This becomes a problem when class 1 and class 0 examples become harder to differentiate as the number of examples per leaf shrinks.
 
-This lead us to developing this second approach, modeled after the Information Gain approach. After a split we first find the majority class for that side of the split. That majority class is then considered as the positive for this side of the split, regardless of its actual class. TP and FP are thus equal to the number of examples in the majority and minority class respectively, with FN being the number of examples for the majority class that are still on the other side of the split.
+We developed a second approach, modeled after the Information Gain. For each side of the split we first find the majority class. That class is then considered the positive, regardless of its actual class. TP and FP are thus equal to the number of examples in the majority and minority class respectively, with FN being the number of examples for the majority class that are still on the other side of the split.
 
 \begin{algorithm}
 \caption{Weighted fScore for side}
-\hspace*{\algorithmicindent} \textbf{Inputs:} p and n, the number of positive and negative examples on this side of the split; !p and !n, the number of positive and negative examples on the other side of the split;
+\hspace*{\algorithmicindent} \textbf{Inputs:} p and n, the number of positive and negative examples on this side of the split; !p and !n,same for the other side of the split;
 \begin{algorithmic}[1]
 \Procedure{F-Measure}{$p, n, !p, !n$}
 
@@ -159,40 +144,48 @@ This lead us to developing this second approach, modeled after the Information G
 \end{algorithmic}
 \end{algorithm}
 
-The new metric is the sum of the weighted F-score of both sides, and the split with the highest value is used. 
+The new metric is the sum of the weighted F-score of both sides, and the split with the highest delta to the pre-split F-measure is used. 
 
 After some preliminary testing we found the second algorithm to outperform the first. For brevity's sake we will therefore focus on the second one going forward.
 
 \section{Splitting on Impurity Metrics}
 
-In order to compare the performance of F-measure splitting to some baseline, we evaluated the same datasets with two more commonly used split-criteria, Information Gain and Gini Index.
+In order to assess the performance of tress that split on the F-measure, we additionally carried out our experiments with more commonly used split-criteria, Information Gain and Gini Index.
 
 \subsection{Information Gain}
 
 Information Gain (IG) is a measure of difference between the entropy the data prior to splitting, and the combined entropy of the two sides after the split. A collection of data is given an entropy $I_H$ according to the equation:
-\begin{equation}I_H = \sum_{j}p_jlogp_j\end{equation}
+\begin{displaymath}I_H = \sum_{j}p_jlogp_j\end{displaymath}
 
-Where $p_j$ is the probability of a random example in the data having the label $j$. The entropies of the two sides of data after the split $l$ and $r$ are then combined and the Information Gain over the pre-split data $p$ calculated according to
-\begin{equation} \label{eq:IG} IG(D_p,f) = I_h(D_p)-\frac{N_l}{N_p}I_h(D_l)-\frac{N_r}{N_p}I_h(D_r)\end{equation}
+Where $p_j$ is the probability an example having the label $j$. The Information Gain $IG$ of a split is calculated by deducting the weighted sum of the entropies on each side, from the entropy before the split:
+\begin{displaymath} IG(D_p,f) = I_H(D_p)-\frac{n_l}{n_p}I_H(D_l)-\frac{n_r}{n_p}I_H(D_r)\end{displaymath}
 
 \subsection{Gini Index}
-The Gini Index is an alternative measure Impurity which is similar to Information Gain but with some notable differences. Each side of the split data is given a Gini Index $I_G$ according to the equation:
-\begin{equation}I_H = 1-\sum_{j}p_j^2\end{equation}
-The impurities of the two sides are then combined and compared to the pre-split data using the same method used for Information Gain (\ref{eq:IG}).
+The Gini Index works similar to Information Gain. Each side of the split data is given a Gini Index $I_G$ according to the equation:
+\begin{displaymath}I_H = 1-\sum_{j}p_j^2\end{displaymath}
 
-Because Gini Index calculations don’t involve logarithms, they are slightly faster to compute, and a Gini Index is will always be in the range 0-1, regardless of how many labels exist in the dataset.
+Just like with IG, the weighted sum of the impurities is then deducted from the pre-split Gini Index. 
 
-A more detailed discussion of the differences between Information Gain and Gini Index is described by \citeA{Raileanu2004}. For the purposes of this study, both Information Gain and Gini Index are used as comparators to splitting based on F Measure, such that the average performance of impurity metrics can be compared to the more results-based F Measure.
+Gini Index calculations are slightly faster to compute as they do not require a logarithm and will always yield a result in the range 0-1, regardless of the amount of classes.
+
+A more detailed discussion of the differences between Information Gain and Gini Index is described by \citeA{Raileanu2004}.
 
 \section{Experiments}
 
-In this section we want to show the results we got from testing out the three different split criteria on the different data sets, before we go on to comparing their performances.
+In this section we want to show the results we got from testing out the three different split criteria, before analyzing these results.
 
 \subsection{Datasets}
 
-First level headings should be in 12~point, initial caps, bold and
-centered. Leave one line space above the heading and 1/4~line space
-below the heading.
+For this paper we used three different datasets found in the UCI machine learning repository \cite{Uci1998}:
+\begin{itemize}
+\item Breast: Breast Cancer Wisconsin (Diagnostic): 569 examples with 30 features, and 212 class 1 examples
+\item Heart: Statlog (Heart): 270 examples with 13 features, and 120 class 1 examples
+\item PopFailure: Climate Model Simulation Crashes: 540 examples with 18 features, and 46 class 1 examples
+\end{itemize}
+
+For each dataset we first randomized the data then split it into five folds, four training sets, to be used in a 4-fold cross validation, and a fifth independent test set. We chose to leave out one fold from the k-fold cross validation to ensure a higher chance of an unbiased view of the performance of the model, as introduced by \citeA{Larson1931} and referenced by \citeA{Stone1974}.
+
+From the models trained in the cross validation we were able to get the average error rate ($\bar{e}$), F-score ($\bar{f}$), and the accompanying standard deviations.
 
 \begin{table}[!ht]
 \begin{center} 
@@ -245,63 +238,17 @@ PopFailure & .0833 & .0227 & .5066 & .0827\\
 \end{center} 
 \end{table}
 
-\subsection{Cross Validation}
+Per dataset and split criteria, we then chose the model with the lowest error rate as the best performing one to be tested with the test set. 
 
-For each dataset we first randomized the data then split it into five folds, four train sets, to be used in a 4-fold cross validation, and a fifth independent test set. We chose to leave out one fold from the k-fold cross validation to ensure a higher chance of an unbiased view of the performance of the model, as introduced by Larson (1931) and referenced by Stone (1974).
+\subsection{Test Results}
 
-From the error rates of models trained in the cross validation we were able to get the average error rate and the standard deviation for each model on each dataset, giving us an idea of the performance and the stability of each model. Per dataset and split criteria, we then chose the model with the lowest error rate as the best performing one to be used in further testing. 
+Additionally to the error rate ($e$) and F-score ($f$) we used receiver operating characteristics (ROC) techniques, namely ROC graphs and curves, to investigate the performance of the trained models on the test set \cite{Fawcett2006}:
 
-Leaving us with three models for each dataset, each of which to be tested on the datasets' fifth fold.
-
-\subsection{ROC analysis}
-
-We use receiver operating characteristics (ROC) techniques, namely ROC graphs and ROC curves, to visualize the performance of the trained models (Fawcett, 2006):
 \begin{itemize}
 \item A ROC graphs scatter plots the TP rate and FP rate of different classifiers, and allows for great comparison.
-\item ROC curves plot one classifiers skill in correctly discerning class 1 from class 0 examples
+\item A ROC curve plots one classifiers skill in correctly discerning class 1 from class 0 examples
+\item AUC is the area under the ROC curve, assigning it a numerical value
 \end{itemize}
-
-Each model yields one point in ROC space, with $x$ being the FP rate and $y$ the TP rate, giving us three graphs:
-
-\begin{figure}[h]
-\caption{Breast ROC Graph}
-\centering
-\includegraphics[width=0.5\textwidth]{breastROCSpace}
-\end{figure}
-
-\begin{figure}[h]
-\caption{Heart ROC Graph}
-\centering
-\includegraphics[width=0.5\textwidth]{heartROCSpace}
-\end{figure}
-
-\begin{figure}[h]
-\caption{PopFailure ROC Graph}
-\centering
-\includegraphics[width=0.5\textwidth]{popFailureROCSpace}
-\end{figure}
-
-To build the ROC curve of each model we use the algorithm introduced by Fawecett (2006). As our decision trees are discrete, we use the deciding leaf's class proportions to also calculate a Laplace corrected scoring classifier (Provost and Domingos, 2001) when classifying an example. Those scores are then used to generate the ROC curve. Additionally, we calculated the area under the curve (AUC) to allow for an easier direct comparison.
-
-\begin{figure}[h]
-\caption{Breast ROC Curve}
-\centering
-\includegraphics[width=0.5\textwidth]{breastROCCurves}
-\end{figure}
-
-\begin{figure}[h]
-\caption{Heart ROC Curve}
-\centering
-\includegraphics[width=0.5\textwidth]{heartROCCurves}
-\end{figure}
-
-\begin{figure}[h]
-\caption{PopFailure ROC Curve}
-\centering
-\includegraphics[width=0.5\textwidth]{popfailureROCCurves}
-\end{figure}
-
-\subsection{Placeholder}
 
 \begin{table}[!ht]
 \begin{center} 
@@ -354,84 +301,45 @@ PopFailure & .0833 & .4706 & .7801 \\
 \end{center} 
 \end{table}
 
-\section{Formalities, Footnotes, and Floats}
+Each model yields one point in ROC space, with $x$ being the FP rate and $y$ the TP rate.
 
-Use standard APA citation format. Citations within the text should
-include the author's last name and year. If the authors' names are
-included in the sentence, place only the year in parentheses, as in
-\citeA{NewellSimon1972a}, but otherwise place the entire reference in
-parentheses with the authors and year separated by a comma
-\cite{NewellSimon1972a}. List multiple references alphabetically and
-separate them by semicolons
-\cite{ChalnickBillman1988a,NewellSimon1972a}. Use the
-``et~al.'' construction only after listing all the authors to a
-publication in an earlier reference and for citations with four or
-more authors.
-
-
-\subsection{Footnotes}
-
-Indicate footnotes with a number\footnote{Sample of the first
-footnote.} in the text. Place the footnotes in 9~point type at the
-bottom of the column on which they appear. Precede the footnote block
-with a horizontal rule.\footnote{Sample of the second footnote.}
-
-\subsection{Figures}
-
-All artwork must be very dark for purposes of reproduction and should
-not be hand drawn. Number figures sequentially, placing the figure
-number and caption, in 10~point, after the figure with one line space
-above the caption and one line space below it, as in
-Figure~\ref{sample-figure}. If necessary, leave extra white space at
-the bottom of the page to avoid splitting the figure and figure
-caption. You may float figures to the top or bottom of a column, or
-set wide figures across both columns.
-
-\begin{figure}[ht]
-\begin{center}
-\fbox{CoGNiTiVe ScIeNcE}
-\end{center}
-\caption{This is a figure.} 
-\label{sample-figure}
+\begin{figure}[!ht]
+\caption{Breast ROC Graph}
+\centering
+\includegraphics[width=0.45\textwidth]{breastROCSpace}
 \end{figure}
 
+\begin{figure}[!ht]
+\caption{Heart ROC Graph}
+\centering
+\includegraphics[width=0.45\textwidth]{heartROCSpace}
+\end{figure}
 
-\section{Acknowledgments}
+\begin{figure}[!ht]
+\caption{PopFailure ROC Graph}
+\centering
+\includegraphics[width=0.45\textwidth]{popFailureROCSpace}
+\end{figure}
 
-Place acknowledgments (including funding information) in a section at
-the end of the paper.
+To build the ROC curve of each model we used the algorithm introduced by \citeA{Fawcett2006}. Scoring values for the ROC curve are the deciding leaf's, Laplace corrected \cite{Provost2003}, class proportions.
 
+\begin{figure}[!ht]
+\caption{Breast ROC Curve}
+\centering
+\includegraphics[width=0.45\textwidth]{breastROCCurves}
+\end{figure}
 
-\section{References Instructions}
+\begin{figure}[!ht]
+\caption{Heart ROC Curve}
+\centering
+\includegraphics[width=0.45\textwidth]{heartROCCurves}
+\end{figure}
 
-Follow the APA Publication Manual for citation format, both within the
-text and in the reference list, with the following exceptions: (a) do
-not cite the page numbers of any book, including chapters in edited
-volumes; (b) use the same format for unpublished references as for
-published ones. Alphabetize references by the surnames of the authors,
-with single author entries preceding multiple author entries. Order
-references by the same authors by the year of publication, with the
-earliest first.
-
-Use a first level section heading, ``{\bf References}'', as shown
-below. Use a hanging indent style, with the first line of the
-reference flush against the left margin and subsequent lines indented
-by 1/8~inch. Below are example references for a conference paper, book
-chapter, journal article, dissertation, book, technical report, and
-edited volume, respectively.
-
-% DC Citations
-\nocite{Raileanu2004}
-
-\nocite{ChalnickBillman1988a}
-\nocite{Feigenbaum1963a}
-\nocite{Hill1983a}
-\nocite{OhlssonLangley1985a}
-% \nocite{Lewis1978a}
-\nocite{Matlock2001}
-\nocite{NewellSimon1972a}
-\nocite{ShragerLangley1990a}
-
+\begin{figure}[!ht]
+\caption{PopFailure ROC Curve}
+\centering
+\includegraphics[width=0.45\textwidth]{popfailureROCCurves}
+\end{figure}
 
 \bibliographystyle{apacite}
 
