@@ -313,7 +313,7 @@ From this dataset we can say that $F$ performs worse than its established counte
 
 \subsection{Dataset: Heart}
 
-The training data for the heart dataset (Table \ref{table:heartTr}) shows a wildly different result to what we saw with the breast set. We have a fair error rate with a steady deviation for each classifier, and low F-measures with less of a deviation than before. He we make a lot of errors and fail to make many correct class 1 classifications, keeping the F-score consistently low.
+The training data for the heart dataset (Table \ref{table:heartTr}) shows a wildly different result to what we saw with the breast set. We have a fair error rate with a steady deviation for each classifier, and low F-measures with less of a deviation than before. Here we make a lot of errors and fail to make many correct class 1 classifications, keeping the F-score consistently low.
 
 We can assume that either the models are ill-fitted or the data is not really suited for splitting without any further data pre-processing. Looking to the test result (Table \ref{table:heartTe}) does not provide much help. We see the error rates for $M$ and $G$ higher than in training, but only barely not within the standard deviation. A considerably higher test error would have been a clear indicator for over fitting.
 
@@ -336,6 +336,18 @@ Noteworthy is the low deviation in the error rate and the high deviation of the 
 The ROC graph (Figure \ref{fig:PopRocG}) shows all the models as rather even and very conservative: they do not create a high $FP$ value, but also fail to make many correct predictions. The ROC curves (Figure \ref{fig:PopRocC}) show a similar picture, though it becomes apparent that $F$ does perform better than $G$ and $M$, achieving better purity for discerning the relevant class 1 examples.
 
 For us this suggests that the lower fit attribute we observed for $F$ earlier works to its advantage here, preventing it from latching on to the majority class, thus doing a better job at discerning the relevant labels in the long run.
+
+\section{Conclusion}
+
+There are many algorithms suitable for determining the optimum split points during decision tree training. The F-Measure algorithm described above can be an effective option for this task, especially when the dataset under examination has a high bias towards one particular class label.
+
+Our hypothesis is supported by our analysis, wherein we show that $F$ performs better than $G$ and $M$ on unbalanced data (PopFailure, 8\% class 1), while performing less well on less biased label distributions (Breast: 44\% class 1; Heart: 37\% class 1).
+
+However, as the difference in performance between the different splitting algorithms is relatively small, and our analysis limited in scope, it is not clear whether or the F-Measure under-fitting is a useful property of the metric, or whether the result shown here is unique to the datasets that were examined. 
+
+Further work is required to confirm the hypothesis that $F$ is better suited for heavily biased dataset, such that future selections of splitting algorithms can be made with more confidence.
+
+Amongst the issues that remain to be discussed are the effect of varying tree depth on $F$, $G$, and $M$,  to ensure that the advantages of F-Measure can't be simply emulated by creating shallower $G$ and $M$ based trees to cause deliberate under-fitting. Additionally, more datasets should be examined to discount the possibility that the results obtained here are not simply a quirk of the data we analysed.
 
 \bibliographystyle{apacite}
 
