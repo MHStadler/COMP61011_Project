@@ -14,13 +14,16 @@
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
 \usepackage{graphicx}
+\usepackage{commath}
 \graphicspath{ {images/} }
-
+\usepackage[utf8]{inputenc}
 \usepackage{titlesec}
+\setlength{\footskip}{2cm}
+\pagenumbering{arabic}
 
 \title{An Experimental Analysis of Decision Trees that split on the F-measure}
  
-\author{{\large \bf Michael Stadler (MAG@Macc.Wisc.Edu)} \\
+\author{{\large \bf Michael Stadler (michael.stadler@postgrad.manchester.ac.uk)} \\
   MSc. Advanced Computer Science
   \AND {\large \bf David Corlett (david.corlett-2@postgrad.manchester.ac.uk)} \\
   MSc. Advanced Computer Science}
@@ -31,7 +34,7 @@
 
 
 \begin{abstract}
-Abstract here
+The F-measure is a commonly used performance metric. In this experimental analysis we use it as a split-criteria for a decision tree. We first introduce the two established methods of Information Gain and Gini Index that serve as reference points for our classifier's performance. Then we move on to the F-measure and how we used it as a split-criteria. Each classifier is tested on three different datasets in a 4-fold cross validation, with a fifth fold left out as an independent test set. The performance of each is assessed on the average error rate and F-measure in the cross fold validation, as well as the error rate, F-Measure, ROC graph and ROC curve for the test set. Based on these metrics we analyze the classifiers, assess our method's usefulness, and show that F-measure splitting looks very promising for heavily biased datasets.
 
 \textbf{Keywords:} 
 Decision Tree; F-Measure; Information Gain; Gini-Index
@@ -39,11 +42,32 @@ Decision Tree; F-Measure; Information Gain; Gini-Index
 
 \section{Introduction}
 
-The F-measure is a commonly used metric when assessing a classifier's performance \cite{Dembczynski2011}. Because of it's ability to statistically assess the future success of a classifier, it has a potential use as an alternative method of determining the optimum split function during decision tree training.
+\citeA{Dembczynski2013} notes that a high F-measure, a commonly used performance metric \cite{Dembczynski2011}, means that a classifier performs well on all of its classes. For this experiment we hope exploit this by using the F-measure as a decision tree split criteria.
 
-We explore possible splitting algorithms which utilise F-measure, describe the action of more commonly used splitting metrics, and conduct an comparison of these options.
+We first summarize the more established criteria, Information Gain and Gini Index, that serve as reference points for our classifier's performance, followed by a more in-depth introduction to the F-measure, and how we used it in our decision tree.
 
-The datasets used in this analysis vary in example count, feature count and class bias. We do not intend to focus on specific datasets, this diversity is intended to provide an unbiased result by minimising the effect of particular dataset characteristics.
+We then showcase the different datasets, and their properties, used in this experiment, as well as which metrics we collected from our different models.
+
+The report concludes with an analysis of the collected data, and an assessment of the usefulness of our classifier.
+
+\section{Splitting on Impurity Metrics}
+
+In order to assess the performance of tress that split on the F-measure, we additionally carried out our experiments with more commonly used split-criteria, Information Gain and Gini Index.
+
+\subsection{Information Gain}
+
+Information Gain, or Mutual Information, is a measure of difference between the entropy the data prior to splitting, and the combined entropy of the two sides after the split \cite{Paninski2003}. The entropy ($H$) for a set of data ($D$) is defined as \cite{Paninski2003}:
+\setcounter{equation}{0}
+\begin{equation}H(D) = -\sum_{j}p_jlogp_j\end{equation}
+
+Where $p_j$ is the probability an example having the label $j$. The Information Gain ($I$) of splitting a set $D_p$ via a function $f$ is calculated by deducting the weighted sum of the entropies on each side from the entropy before the split \cite{Paninski2003}:
+\begin{equation} I(D_p,f) = H(D_p)-(\frac{n_l}{n_p}H(D_l)+\frac{n_r}{n_p}H(D_r))\end{equation}
+
+\subsection{Gini Index}
+Here, each side of the split ($D$) is assigned a Gini Index $G$ \cite{Breiman1984}:
+\begin{displaymath}G(D_x) = 1-\sum_{j}p_j^2\end{displaymath}
+
+Like with Information Gain, the weighted sum of the indices is deducted from the pre-split value. We recommend \citeA{Raileanu2004} for a more detailed description of the differences between Information Gain and Gini Index.
 
 \section{Splitting on the F$_\beta$-measure}
 
@@ -52,6 +76,7 @@ This section first briefly introduces the basics of the F-measure and then goes 
 \subsection{The F$_\beta$-measure}
 In binary classifications there are four possible results when assessing a classification result. Examples of class 1 are called true positives ($TP$) if classified correctly, or false positives ($FP$) otherwise. Same goes for class 0, but in this case we speak of true negatives ($TN$) and false negatives ($FN$) \cite{Fawcett2006}.
 
+\setcounter{equation}{0}
 The resulting confusion matrix is the basis for many performance metrics, such as the F$_\beta$-measure, formally written as \cite{Nan2012}:
 \begin{equation}F_\beta = \frac{(1 + \beta^2) \sum_{i}s_iy_i}{\beta^2 \sum_{i}y_i + \sum_{i}s_i}\end{equation}
 
@@ -69,98 +94,22 @@ Informally, precision is the ratio of $TP$ to the number of examples classified 
 
 We see, that a classifier with a high F$_\beta$-measure correctly classifies a lot of class 1 examples correctly, while making few classification errors. The $\beta$ factor gives weight to how much the classifier gets punished for misclassifying class 1 examples, though in praxis it is mostly just left at its default 1, also called the F$_1$-score or just F-measure \cite{Nan2012}.
 
-\subsection{The F$_\beta$-measure as split-criteria}
+\subsection{The F-measure as split-criteria}
 
-The F-measure as a learning criteria has successfully been employed before, in varying ways for different models \cite{Dembczynski2013,Sawade2010}. For this analysis we use the F-measure as split criteria in a decision tree.
+The F-measure as a learning criteria has successfully been employed before, in varying ways for different models \cite{Dembczynski2013,Sawade2010}. Here we use the F-measure as split criteria in a decision tree, modeled after the Information Gain.
 
-Our first approach was to maximize the overall F-measure after a split. Both sides of a split were first assigned a label, if the count of class 1 examples on one side, outweighed the class 0 count, we considered it to predict class 1, otherwise class 0.
+To split on the F-measure we first find the majority class for each side of the split. That class is then considered the positive, regardless of its actual class. TP and FP are thus equal to the number of examples in the majority ($S_p$) and minority class ($S_n$) respectively, with FN being the number of examples of the majority class on the other side ($\neg S_p$).
 
-If a split is considered to be positive then all of its positive examples are $TP$ and all of its negatives are $FP$. Otherwise all of its positives are $FN$. After adding the values up for both sides of the split, we can calculate the F-measure for this split. The split with the highest value is then used.
+\setcounter{equation}{0}
+\begin{equation}F(S) = \frac{2 S_p}{(2S_p)+\neg S_p+S_n}\end{equation}
 
-\begin{algorithm}
-\caption{Maximum F-measure across a split}
-p and n, the number of positive and negative examples on the left side of the split; !p and !n, the number of positive and negative examples on the other side;
-\begin{algorithmic}[1]
-\Function{F-Measure}{$p, n, !p, !n$}
+The new metric is the sum of the weighted F-measure of each side, and the split with the highest delta to the pre-split F-measure is then used going forward. 
 
-\State $TP, FP, FN \gets 0$
+\begin{equation}
+\Delta F = \abs{F(S) - (\frac{n_l}{n} F(S_l) + \frac{n_r}{n} F(S_r))} 
+\end{equation}
 
-\If{$p > n$}
-\State $TP \gets TP + p$
-\State $FP \gets FP + n$
-\Else
-\State $FN \gets FN + p$
-\EndIf
-
-\If{$!p > !n$}
-\State $TP \gets TP + !p$
-\State $FP \gets FP + !n$
-\Else
-\State $FN \gets FN + !p$
-\EndIf
-
-\State $fScore \gets fScore(TP, FP, FN)$
-
-\textbf{return} $fScore$
-\EndFunction
-\end{algorithmic}
-\end{algorithm}
-
-This heavily emphasizes examples of class 1; a split that would lead to a high purity of class 0 on one side, is not recognized as valuable if it does not also yield a high number of true positives. This becomes a problem when class 1 and class 0 examples become harder to differentiate as the number of examples per leaf shrinks.
-
-We developed a second approach, modeled after the Information Gain. For each side of the split we first find the majority class. That class is then considered the positive, regardless of its actual class. TP and FP are thus equal to the number of examples in the majority and minority class respectively, with FN being the number of examples for the majority class that are still on the other side of the split.
-
-\begin{algorithm}
-\caption{Weighted fScore for side}
-\hspace*{\algorithmicindent} \textbf{Inputs:} p and n, the number of positive and negative examples on this side of the split; !p and !n,same for the other side of the split;
-\begin{algorithmic}[1]
-\Procedure{F-Measure}{$p, n, !p, !n$}
-
-\State $count \gets p+n$
-\State $wholeCount \gets count + !p + !n$
-
-\If{$p > n$}
-\State $TP \gets p$
-\State $FP \gets n$
-\State $FN \gets !p$
-\Else
-\State $TP \gets n$
-\State $FP \gets p$
-\State $FN \gets !n$
-\EndIf
-
-\State $fScore \gets fScore(TP, FP, FN)$
-
-\textbf{return} $(count/wholeCount) * fScore$
-\EndProcedure
-\end{algorithmic}
-\end{algorithm}
-
-The new metric is the sum of the weighted F-score of both sides, and the split with the highest delta to the pre-split F-measure is used. 
-
-After some preliminary testing we found the second algorithm to outperform the first. For brevity's sake we will therefore focus on the second one going forward.
-
-\section{Splitting on Impurity Metrics}
-
-In order to assess the performance of tress that split on the F-measure, we additionally carried out our experiments with more commonly used split-criteria, Information Gain and Gini Index.
-
-\subsection{Information Gain}
-
-Information Gain is a measure of difference between the entropy the data prior to splitting, and the combined entropy of the two sides after the split. A collection of data is given an entropy $H$ according to the equation:
-\begin{displaymath}H = \sum_{j}p_jlogp_j\end{displaymath}
-
-Where $p_j$ is the probability an example having the label $j$. The Information Gain $I$ of a split is calculated by deducting the weighted sum of the entropies on each side, from the entropy before the split:
-\begin{displaymath} I(D_p,f) = H(D_p)-\frac{n_l}{n_p}H(D_l)-\frac{n_r}{n_p}H(D_r)\end{displaymath}
-
-\subsection{Gini Index}
-The Gini Index works similar to Information Gain. Each side of the split data is given a Gini Index $G$ according to the equation:
-\begin{displaymath}G(D_p) = 1-\sum_{j}p_j^2\end{displaymath}
-
-Just like with Information Gain, the weighted sum of the impurities is then deducted from the pre-split Gini Index. 
-
-Gini Index calculations are slightly faster to compute as they do not require a logarithm and will always yield a result in the range 0-1, regardless of the amount of classes.
-
-A more detailed discussion of the differences between Information Gain and Gini Index is described by \citeA{Raileanu2004}.
+High deltas yield balanced purities on both sides of the split, preventing the tree from over fitting on majority classes.
 
 \section{Experiments}
 
@@ -168,29 +117,31 @@ In this section we want to show the results we got from testing out the three di
 
 \subsection{Datasets}
 
-For this paper we used three different datasets found in the UCI machine learning repository \cite{Uci1998}. These datasets have all been used previously \cite{Brown04diversityin,gmd-6-1157-2013}:
+For this paper we used three proved \cite{Brown04diversityin,lucas2013} datasets from the UCI machine learning repository \cite{Uci1998}:
 \begin{itemize}
 \item Breast: Breast Cancer Wisconsin (Diagnostic): 569 examples with 30 features, and 212 class 1 examples
 \item Heart: Statlog (Heart): 270 examples with 13 features, and 120 class 1 examples
 \item PopFailure: Climate Model Simulation Crashes: 540 examples with 18 features, and 46 class 1 examples
 \end{itemize}
 
+Maximum depth and minimum element count per leaf indicate when the tree stops splitting. We left the maximum depth at its default of $10$ and defined a minimum element count for each set (based on preliminary testing): Heart $10$, Breast $20$, PopFailure $5$. We did not fine tune the parameters beyond that and each classifier was trained with the same constraints.
+
 For each dataset we first randomized the data then split it into five folds, four training sets, to be used in a 4-fold cross validation, and a fifth independent test set. We chose to leave out one fold from the k-fold cross validation to ensure a higher chance of an unbiased view of the performance of the model, as introduced by \citeA{Larson1931} and referenced by \citeA{Stone1974}.
 
-From the models trained in the cross validation we were able to get the average error rate ($\bar{e}$), F-score ($\bar{f}$), and the accompanying standard deviations.
+For each set, we trained a decision tree using our F-measure approach ($F$), Gini Index ($G$), and Mutual Information ($M$) in cross validation. From these models we were able to get the average error rate ($\bar{e}$), F-score ($\bar{f}$), and the accompanying standard deviations.
 
 \begin{table}[!ht]
 \begin{center} 
-\caption{F-Measure Training Results} 
-\label{sample-table} 
+\caption{Breast Training Results} 
+\label{table:breastTr} 
 \vskip 0.12in
 \begin{tabular}{ c | c | c | c | c }
 \hline
-Set & $\bar{e}$ & $\sigma$ & $\bar{f}$ & $\sigma$ \\
+Type & $\bar{e}$ & $\sigma$ & $\bar{f}$ & $\sigma$ \\
 \hline
-Breast & .0951 & .0254 & .8669 & .0401\\
-Heart & .2917 & .0532 & .6367 & .0838\\
-PopFailure &  .0949 & .0175 & .4332 & .2276\\
+F & .0951 & .0254 & .8669 & .0401 \\
+G & .0885 & .0125 & .8778 & .0272 \\
+M & .0774 & .0111 & .8963 & .0212 \\
 \hline
 \end{tabular} 
 \end{center} 
@@ -198,16 +149,16 @@ PopFailure &  .0949 & .0175 & .4332 & .2276\\
 
 \begin{table}[!ht]
 \begin{center} 
-\caption{Gini Index Training Results} 
-\label{sample-table} 
+\caption{Heart Training Results} 
+\label{table:heartTr} 
 \vskip 0.12in
 \begin{tabular}{ c | c | c | c | c }
 \hline
-Set & $\bar{e}$ & $\sigma$ & $\bar{f}$ & $\sigma$ \\
+Type & $\bar{e}$ & $\sigma$ & $\bar{f}$ & $\sigma$ \\
 \hline
-Breast & .0885 & .0125 & .8778 & .0272\\
-Heart & .1759 & .0535 & .8058 & .0671\\
-PopFailure & .0787 & .4040 & .5816 & .0684\\
+F & .2917 & .0532 & .6367 & .0838 \\
+G & .1759 & .0535 & .8058 & .0671 \\
+M & .1806 & .0532 & .7912 & .0730 \\
 \hline
 \end{tabular} 
 \end{center} 
@@ -215,16 +166,16 @@ PopFailure & .0787 & .4040 & .5816 & .0684\\
 
 \begin{table}[!ht]
 \begin{center} 
-\caption{Mutual Information Training Results} 
-\label{sample-table} 
+\caption{PopFailure Training Results} 
+\label{table:popTr} 
 \vskip 0.12in
 \begin{tabular}{ c | c | c | c | c }
 \hline
-Set & $\bar{e}$ & $\sigma$ & $\bar{f}$ & $\sigma$ \\
+Type & $\bar{e}$ & $\sigma$ & $\bar{f}$ & $\sigma$ \\
 \hline
-Breast & .0774	& .0111 & .8963 & .0212\\
-Heart & .1806 & .0532 & .7912 & .0730\\
-PopFailure & .0833 & .0227 & .5066 & .0827\\
+F & .0949 & .0175 & .4332 & .2276 \\
+G & .0787 & .0404 & .5816 & .0684 \\
+M & .0833 & .0227 & .5066 & .0827 \\
 \hline
 \end{tabular} 
 \end{center} 
@@ -244,16 +195,16 @@ Additionally to the error rate ($e$) and F-score ($f$) we used receiver operatin
 
 \begin{table}[!ht]
 \begin{center} 
-\caption{F-Measure Test Results} 
-\label{sample-table} 
+\caption{Breast Test Results} 
+\label{table:breastTe} 
 \vskip 0.12in
 \begin{tabular}{ c | c | c | c }
 \hline
-Set & $e$ & $f$ & AUC \\
+Type & $e$ & $f$ & AUC \\
 \hline
-Breast & .0940	& .8406 & .8485 \\
-Heart & .2963 & .6190 & .7166 \\
-PopFailure & .0741 & .5000 & .9701 \\
+F & .0940 & .8406 & .8485 \\
+G & .0940 & .8571 & .9800 \\
+M & .0342 & .9487 & .9904 \\
 \hline
 \end{tabular} 
 \end{center} 
@@ -261,16 +212,16 @@ PopFailure & .0741 & .5000 & .9701 \\
 
 \begin{table}[!ht]
 \begin{center} 
-\caption{Gini Index Test Results} 
-\label{sample-table} 
+\caption{Heart Test Results} 
+\label{table:heartTe} 
 \vskip 0.12in
 \begin{tabular}{ c | c | c | c }
 \hline
-Set & $e$ & $f$ & AUC \\
+Type & $e$ & $f$ & AUC \\
 \hline
-Breast & .0940 & .8571 & .9800 \\
-Heart & .2407 & .7234 & .8186 \\
-PopFailure & .0926 & .4444 & .7801 \\
+F & .2963 & .6190 & .7166 \\
+G & .2407 & .7234 & .8186 \\
+M & .2407 & .6829 & .8814 \\
 \hline
 \end{tabular} 
 \end{center} 
@@ -278,16 +229,16 @@ PopFailure & .0926 & .4444 & .7801 \\
 
 \begin{table}[!ht]
 \begin{center} 
-\caption{Mutual Information Test Results} 
-\label{sample-table} 
+\caption{PopFailure Test Results} 
+\label{table:popTe} 
 \vskip 0.12in
 \begin{tabular}{ c | c | c | c }
 \hline
-Set & $e$ & $f$ & AUC \\
+Type & $e$ & $f$ & AUC \\
 \hline
-Breast & .0342 & .9487 & .9904 \\
-Heart & .2407 & .6829 & .8814 \\
-PopFailure & .0833 & .4706 & .7801 \\
+F & .0741 & .5000 & .9701 \\
+G & .0926 & .4444 & .7801 \\
+M & .0833 & .4706 & .7801 \\
 \hline
 \end{tabular} 
 \end{center} 
@@ -297,18 +248,21 @@ Each model yields one point in ROC space, with $x$ being the FP rate and $y$ the
 
 \begin{figure}[!ht]
 \caption{Breast ROC Graph}
+\label{fig:BreastRocG} 
 \centering
 \includegraphics[width=0.45\textwidth]{breastROCSpace}
 \end{figure}
 
 \begin{figure}[!ht]
 \caption{Heart ROC Graph}
+\label{fig:HeartRocG} 
 \centering
 \includegraphics[width=0.45\textwidth]{heartROCSpace}
 \end{figure}
 
 \begin{figure}[!ht]
 \caption{PopFailure ROC Graph}
+\label{fig:PopRocG} 
 \centering
 \includegraphics[width=0.45\textwidth]{popFailureROCSpace}
 \end{figure}
@@ -316,22 +270,46 @@ Each model yields one point in ROC space, with $x$ being the FP rate and $y$ the
 To build the ROC curve of each model we used the algorithm introduced by \citeA{Fawcett2006}. Scoring values for the ROC curve are the deciding leaf's, Laplace corrected \cite{Provost2003}, class proportions.
 
 \begin{figure}[!ht]
-\caption{Breast ROC Curve}
+\caption{Breast ROC Curves}
+\label{fig:BreastRocC} 
 \centering
 \includegraphics[width=0.45\textwidth]{breastROCCurves}
 \end{figure}
 
 \begin{figure}[!ht]
-\caption{Heart ROC Curve}
+\caption{Heart ROC Curves}
+\label{fig:HeartRocC} 
 \centering
 \includegraphics[width=0.45\textwidth]{heartROCCurves}
 \end{figure}
 
 \begin{figure}[!ht]
-\caption{PopFailure ROC Curve}
+\caption{PopFailure ROC Curves}
+\label{fig:PopRocC} 
 \centering
 \includegraphics[width=0.45\textwidth]{popfailureROCCurves}
 \end{figure}
+
+\section{Analysis}
+
+The first point of interest are the training results. Looking at the results for the Breast set (Table \ref{table:breastTr}) we see low error values across the board, with a small deviation in error rates. The F-measures also indicate good performance, but with a higher variation. This can be explained due to varying amount of class 1 examples available in the validation set of the data. If the error rate is somewhat constant, the F-Measure is lower if there aren't a lot of examples to classify as $TP$. Looking at the test results for breast (Table \ref{table:breastTe}) we can see that the values here are pretty much in tune with what we see in the training results. Our F-measure and the Gini Index perform almost exactly as they do on the training data, only $M$ is far off, in this case vastly outperforming on the test data.
+
+Overall we can see that the models are all rather well fitted. We get a steady training error, which is also in-line with the test error. Mutual Information seems to have well fit on the training results and simply gotten a good draw on the test set.
+
+This is also represented in the ROC Graph (Figure \ref{fig:BreastRocG}), as we see $M's$ great performance placed in the top far left \cite{Fawcett2006}. $F$ and $G$ are about even, with the F-measure taking a more conservative stance to bottom left, as opposed to the Gini Index's liberal top right \cite{Fawcett2006}. Going back to the numbers we see that the Gini Index outperforms the F-measure by a bit. 
+
+Overall, not too bad of a result for our experimental measure: It falls behind the established ones but not considerably so.
+
+The data for the Heart dataset tells a different story (Table \ref{table:heartTr}). Here we get a rather high error on all criteria with an almost even deviation. Same for the F-measure. The relative high error suggest that we have an ill fitted model, though it is hard to tell whether it is over or under fitted. The test error is barely not within the standard deviation, so not a clear indicator either.In the ROC Graph {Figure \ref{fig:HeartRocG} we again see $G$ with a liberal stance, and $M$ and $F$ being more conservative, with a slight edge for $M$. 
+
+Comparing the ROC Curves of the well fitted classifiers (\ref{fig:BreastRocC}) with the ones for the heart dataset (\ref{fig:HeartRocC}). The curves are generated by sorting the classification results descending by their estimate of the likeliness that the example is of class 1. Mistakes in the lower left half therefore can mean one of two things. Either we were very sure of a example being class 1 but got it wrong, or we don't have members with a high chance of class 1. In the breast ROC Curves we see that we have many points on, or almost on the y axis, meaning we make few mistakes when we think a class is positive. In the Heart curves on the other hand we see a lot of errors being made in the lower left. Looking at $F$ we see that we also make some mistakes further up, which suggest that the model is under fit, having poor odds for either class membership, resulting in many classification errors. We see a similar effect in $G$ and $M$, though they fair a lot better, making their mistakes further up. So we still make some mistakes in regions where we would be rather sure, but then we get a good rate once we become surer of an example's class 0 membership. If we consider $G$ and $M$ to be better fit, we can see them converging towards a similar graph displayed in Figure \ref{fig:BreastRocC}, with $G$ fitting on the on the $TP-Rate$ first, and $M$ on the $FP-Rate$.
+
+With this in mind we would argue that it is likelier that the classifier's under fitted on the data, but no clear argument can be made with data available. Further experiments with varying depths and minimum examples counts are needed, all we can say for sure is that the models are ill fitted. While not ideal, this still gives us some insight in the behavior of our $F$ classifier, and how it behaves under bad circumstances.
+
+This leaves the last of the three sets where the class 0 examples vastly outweigh the class 1 examples. In the Training Results (\ref{table:popTr}) we see low test errors, but also low F-Measures. This can be explained by the disproportional class distribution: with few class 1 examples to get right, it's hard to get many class 0 examples wrong. This leads to low error, but does not necessarily mean we are good at discerning classes. We only get a few of the very scarce class 1 examples right, leading to a low F-score. Compared to the Test Results (\ref{table:popTe}) we see that the error rates are in line with we had in the training stage, with room for improvement in the F-Measure department.
+
+The ROC graph (Figure \ref{fig:PopRocG}) shows all classifiers even, mistaking few class 1 examples for class 0, but struggling to correctly classify the few class 1 examples at the same time.
+
 
 \bibliographystyle{apacite}
 
