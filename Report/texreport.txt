@@ -76,8 +76,15 @@ This section first briefly introduces the basics of the F-measure and then goes 
 \subsection{The F$_\beta$-measure}
 In binary classifications there are four possible results when assessing a classification result. Examples of class 1 are called true positives ($TP$) if classified correctly, or false positives ($FP$) otherwise. Same goes for class 0, but in this case we speak of true negatives ($TN$) and false negatives ($FN$) \cite{Fawcett2006}.
 
+\begin{figure}[h]
+\caption{Binary Confusion Matrix \cite{Fawcett2006}}
+\label{fig:ConfusionMatrix} 
+\centering
+\includegraphics[width=0.25\textwidth]{confusionmatrix}
+\end{figure}
+
 \setcounter{equation}{0}
-The resulting confusion matrix is the basis for many performance metrics, such as the F$_\beta$-measure, formally written as \cite{Nan2012}:
+The resulting confusion matrix (Figure \ref{fig:ConfusionMatrix}) is the basis for many performance metrics, such as the F$_\beta$-measure, formally written as \cite{Nan2012}:
 \begin{equation}F_\beta = \frac{(1 + \beta^2) \sum_{i}s_iy_i}{\beta^2 \sum_{i}y_i + \sum_{i}s_i}\end{equation}
 
 With the formal definitions for precision ($p$) and recall ($r$) \cite{Nan2012}:
@@ -292,24 +299,43 @@ To build the ROC curve of each model we used the algorithm introduced by \citeA{
 
 \section{Analysis}
 
-The first point of interest are the training results. Looking at the results for the Breast set (Table \ref{table:breastTr}) we see low error values across the board, with a small deviation in error rates. The F-measures also indicate good performance, but with a higher variation. This can be explained due to varying amount of class 1 examples available in the validation set of the data. If the error rate is somewhat constant, the F-Measure is lower if there aren't a lot of examples to classify as $TP$. Looking at the test results for breast (Table \ref{table:breastTe}) we can see that the values here are pretty much in tune with what we see in the training results. Our F-measure and the Gini Index perform almost exactly as they do on the training data, only $M$ is far off, in this case vastly outperforming on the test data.
+In this section we analyze the collected data and explain what it means for each classifier's performance, which will then be the basis for our final conclusions.
 
-Overall we can see that the models are all rather well fitted. We get a steady training error, which is also in-line with the test error. Mutual Information seems to have well fit on the training results and simply gotten a good draw on the test set.
+\subsection{Dataset: Breast}
 
-This is also represented in the ROC Graph (Figure \ref{fig:BreastRocG}), as we see $M's$ great performance placed in the top far left \cite{Fawcett2006}. $F$ and $G$ are about even, with the F-measure taking a more conservative stance to bottom left, as opposed to the Gini Index's liberal top right \cite{Fawcett2006}. Going back to the numbers we see that the Gini Index outperforms the F-measure by a bit. 
+For the breast dataset, the training data (Table \ref{table:breastTr}) shows low error values and high F-measures for every classifier. The standard deviation for the error rate is low, but higher for the F-Measure. This can be explained by the varying amounts of class 1 examples contained in the different folds. With a steady error rate, the value for $TP$ is the major factor for the F-score. If there are only few positive examples to get right, $TP$ naturally stays smaller, so folds with a higher count of class 1 examples will get a higher value despite making the same amount of errors.
 
-Overall, not too bad of a result for our experimental measure: It falls behind the established ones but not considerably so.
+The test results (Table \ref{table:breastTe}) show similar values to our training results, only $M$ performs considerably better than it did on the training data. Overall we can say that the data is well fitted.
 
-The data for the Heart dataset tells a different story (Table \ref{table:heartTr}). Here we get a rather high error on all criteria with an almost even deviation. Same for the F-measure. The relative high error suggest that we have an ill fitted model, though it is hard to tell whether it is over or under fitted. The test error is barely not within the standard deviation, so not a clear indicator either.In the ROC Graph {Figure \ref{fig:HeartRocG} we again see $G$ with a liberal stance, and $M$ and $F$ being more conservative, with a slight edge for $M$. 
+The ROC graph (Figure \ref{fig:BreastRocG}) displays this as well, with $M$ in the far left corner, $G$ liberally in the top right, and $F$ conservatively further to the bottom left \cite{Fawcett2006}. The ROC curves (Figure \ref{fig:BreastRocC}) show  that $G$ is slightly better than $F$ at discerning the correct class, with $M$ far ahead of both. Each classifier has a fair amount of points directly on the margins, indicating that they are sure of an example's class for most of them and correct in that certainty, meaning they have pure leafs.
 
-Comparing the ROC Curves of the well fitted classifiers (\ref{fig:BreastRocC}) with the ones for the heart dataset (\ref{fig:HeartRocC}). The curves are generated by sorting the classification results descending by their estimate of the likeliness that the example is of class 1. Mistakes in the lower left half therefore can mean one of two things. Either we were very sure of a example being class 1 but got it wrong, or we don't have members with a high chance of class 1. In the breast ROC Curves we see that we have many points on, or almost on the y axis, meaning we make few mistakes when we think a class is positive. In the Heart curves on the other hand we see a lot of errors being made in the lower left. Looking at $F$ we see that we also make some mistakes further up, which suggest that the model is under fit, having poor odds for either class membership, resulting in many classification errors. We see a similar effect in $G$ and $M$, though they fair a lot better, making their mistakes further up. So we still make some mistakes in regions where we would be rather sure, but then we get a good rate once we become surer of an example's class 0 membership. If we consider $G$ and $M$ to be better fit, we can see them converging towards a similar graph displayed in Figure \ref{fig:BreastRocC}, with $G$ fitting on the on the $TP-Rate$ first, and $M$ on the $FP-Rate$.
+From this dataset we can say that $F$ performs worse than its established counterparts, but not considerably so.
 
-With this in mind we would argue that it is likelier that the classifier's under fitted on the data, but no clear argument can be made with data available. Further experiments with varying depths and minimum examples counts are needed, all we can say for sure is that the models are ill fitted. While not ideal, this still gives us some insight in the behavior of our $F$ classifier, and how it behaves under bad circumstances.
+\subsection{Dataset: Heart}
 
-This leaves the last of the three sets where the class 0 examples vastly outweigh the class 1 examples. In the Training Results (\ref{table:popTr}) we see low test errors, but also low F-Measures. This can be explained by the disproportional class distribution: with few class 1 examples to get right, it's hard to get many class 0 examples wrong. This leads to low error, but does not necessarily mean we are good at discerning classes. We only get a few of the very scarce class 1 examples right, leading to a low F-score. Compared to the Test Results (\ref{table:popTe}) we see that the error rates are in line with we had in the training stage, with room for improvement in the F-Measure department.
+The training data for the heart dataset (Table \ref{table:heartTr}) shows a wildly different result to what we saw with the breast set. We have a fair error rate with a steady deviation for each classifier, and low F-measures with less of a deviation than before. He we make a lot of errors and fail to make many correct class 1 classifications, keeping the F-score consistently low.
 
-The ROC graph (Figure \ref{fig:PopRocG}) shows all classifiers even, mistaking few class 1 examples for class 0, but struggling to correctly classify the few class 1 examples at the same time.
+We can assume that either the models are ill-fitted or the data is not really suited for splitting without any further data pre-processing. Looking to the test result (Table \ref{table:heartTe}) does not provide much help. We see the error rates for $M$ and $G$ higher than in training, but only barely not within the standard deviation. A considerably higher test error would have been a clear indicator for over fitting.
 
+The ROC graph (Figure \ref{fig:HeartRocG}) indicates similar trends as the one for the heart set (Figure \ref{fig:BreastRocG}): $M$ outperforms $F$, and both of them are more conservative than $G$. 
+
+Whereas the ROC graph suggests that $G$ performs best, the ROC Curves (Figure \ref{fig:HeartRocC}) do the opposite. The AUC also indicates that $M$ is indeed better at discerning the different classes. But we still do not know whether the data is under or over fit. Looking at the bottom left half of the graph we first see relatively straight increases and few errors for $G$ and $M$, with the rest of the curve looking a lot better for $M$, whereas $G$ sinks back to levels of $F$. We can say that $G$ and $M$ have a few pure leafs for class 1 and are able to correctly discern labels of class 1, but then fall short of producing pure leafs of class 0 as well, making it harder to discern the real class as more class 0 examples are in the mix.
+
+$F$ on the other hand produces neither pure leafs for class 1 nor for class 0. In fact it makes even mistakes in both regions, suggesting that its leafs are still very balanced, which is in line with what we observed about our F-measure criteria earlier: high deltas yield balanced purities on both sides. Based on this we can say that, even though we can not be certain, the model is likelier to under fit than over fit.
+
+With this assumption in mind we can look at the breast (Figure \ref{fig:BreastRocC}) and heart (Figure \ref{fig:HeartRocC}) curves and observe another trend: $M$ appears to fit faster and overall better than $G$ and $F$, which fall behind. In the heart set we see $M$ converging evenly along margins towards the top left corner, with $G$ converging on the TP-rate first, and with a better fit hopefully also increasing its FP-rate.
+
+More detailed experiments will be required to ascertain the exact reason for these poor split results, but we can say with some confidence that the models have under fitted. Considering this, we can also see that our $F$ criteria seems to generally fit slower than the others, always lacking a bit behind.
+
+\subsection{Dataset: PopFailure}
+
+This dataset is heavily biased, with only $8.5\%$ being of class 1. The training data (Table \ref{table:popTr}) makes it apparent that every classifier struggles here. We have low error rates with low deviations but also very low F-scores. The error rates are very low as it is hard to mistakenly classify class 0 examples, and the few misclassified positives do not affect the error rate too much. We get a low F-score because we fail at getting a high $TP$ rate. But in praxis we are often interested in exactly those different labels, and not in getting most of the irrelevant labels correct \cite{Dembczynski2013}.
+
+Noteworthy is the low deviation in the error rate and the high deviation of the F-Measure for $F$. It suggest that each training model creates similar spread leafs (low error deviation), but leading to wildly different results in $TP$. The test data (Table \ref{table:popTe}) is very similar to the training data, with each value well within the standard deviation.
+
+The ROC graph (Figure \ref{fig:PopRocG}) shows all the models as rather even and very conservative: they do not create a high $FP$ value, but also fail to make many correct predictions. The ROC curves (Figure \ref{fig:PopRocC}) show a similar picture, though it becomes apparent that $F$ does perform better than $G$ and $M$, achieving better purity for discerning the relevant class 1 examples.
+
+For us this suggests that the lower fit attribute we observed for $F$ earlier works to its advantage here, preventing it from latching on to the majority class, thus doing a better job at discerning the relevant labels in the long run.
 
 \bibliographystyle{apacite}
 
