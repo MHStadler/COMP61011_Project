@@ -1,22 +1,10 @@
 % 
-% Annual Cognitive Science Conference
-% Sample LaTeX Paper -- Proceedings Format
+% MSc COMP61011 Coursework Project
+% LaTeX Paper -- Proceedings Format
 % 
 
-% Original : Ashwin Ram (ashwin@cc.gatech.edu)       04/01/1994
-% Modified : Johanna Moore (jmoore@cs.pitt.edu)      03/17/1995
-% Modified : David Noelle (noelle@ucsd.edu)          03/15/1996
-% Modified : Pat Langley (langley@cs.stanford.edu)   01/26/1997
-% Latex2e corrections by Ramin Charles Nakisa        01/28/1997 
-% Modified : Tina Eliassi-Rad (eliassi@cs.wisc.edu)  01/31/1998
-% Modified : Trisha Yannuzzi (trisha@ircs.upenn.edu) 12/28/1999 (in process)
-% Modified : Mary Ellen Foster (M.E.Foster@ed.ac.uk) 12/11/2000
-% Modified : Ken Forbus                              01/23/2004
-% Modified : Eli M. Silk (esilk@pitt.edu)            05/24/2005
-% Modified : Niels Taatgen (taatgen@cmu.edu)         10/24/2006
-% Modified : David Noelle (dnoelle@ucmerced.edu)     11/19/2014
-
-%% Change "letterpaper" in the following line to "a4paper" if you must.
+% Original : Michael Stadler (ashwin@cc.gatech.edu)       29/10/2017
+% Modified : David Corlett (david.corlett-2@postgrad.manchester.ac.uk)      02/11/2017
 
 \documentclass[12pt,a4paper]{article}
 
@@ -34,7 +22,7 @@
  
 \author{{\large \bf Michael Stadler (MAG@Macc.Wisc.Edu)} \\
   MSc. Advanced Computer Science
-  \AND {\large \bf Dave (SDJ@Macc.Wisc.Edu)} \\
+  \AND {\large \bf David Corlett (david.corlett-2@postgrad.manchester.ac.uk)} \\
   MSc. Advanced Computer Science}
 
 \begin{document}
@@ -51,7 +39,11 @@ Decision Tree; F-Measure; Information Gain; Gini-Index
 
 \section{Introduction}
 
-The F-measure is a commonly used metric when assessing a classifier's performance \cite{Dembczynski2011}.
+The F-measure is a commonly used metric when assessing a classifier's performance \cite{Dembczynski2011}. Because of it's ability to statistically assess the future success of a classifier, it has a potential use as an alternative method of determining the optimum split function during decision tree training.
+
+We explore possible splitting algorithms which utilise F-measure, describe the action of more commonly used splitting metrics, and conduct an comparison of these options.
+
+The datasets used in this analysis vary in example count, feature count and class bias. We do not intend to focus on specific datasets, this diversity is intended to provide an unbiased result by minimising the effect of particular dataset characteristics.
 
 \section{Splitting on the F$_\beta$-measure}
 
@@ -154,17 +146,17 @@ In order to assess the performance of tress that split on the F-measure, we addi
 
 \subsection{Information Gain}
 
-Information Gain (IG) is a measure of difference between the entropy the data prior to splitting, and the combined entropy of the two sides after the split. A collection of data is given an entropy $I_H$ according to the equation:
-\begin{displaymath}I_H = \sum_{j}p_jlogp_j\end{displaymath}
+Information Gain is a measure of difference between the entropy the data prior to splitting, and the combined entropy of the two sides after the split. A collection of data is given an entropy $H$ according to the equation:
+\begin{displaymath}H = \sum_{j}p_jlogp_j\end{displaymath}
 
-Where $p_j$ is the probability an example having the label $j$. The Information Gain $IG$ of a split is calculated by deducting the weighted sum of the entropies on each side, from the entropy before the split:
-\begin{displaymath} IG(D_p,f) = I_H(D_p)-\frac{n_l}{n_p}I_H(D_l)-\frac{n_r}{n_p}I_H(D_r)\end{displaymath}
+Where $p_j$ is the probability an example having the label $j$. The Information Gain $I$ of a split is calculated by deducting the weighted sum of the entropies on each side, from the entropy before the split:
+\begin{displaymath} I(D_p,f) = H(D_p)-\frac{n_l}{n_p}H(D_l)-\frac{n_r}{n_p}H(D_r)\end{displaymath}
 
 \subsection{Gini Index}
-The Gini Index works similar to Information Gain. Each side of the split data is given a Gini Index $I_G$ according to the equation:
-\begin{displaymath}I_H = 1-\sum_{j}p_j^2\end{displaymath}
+The Gini Index works similar to Information Gain. Each side of the split data is given a Gini Index $G$ according to the equation:
+\begin{displaymath}G(D_p) = 1-\sum_{j}p_j^2\end{displaymath}
 
-Just like with IG, the weighted sum of the impurities is then deducted from the pre-split Gini Index. 
+Just like with Information Gain, the weighted sum of the impurities is then deducted from the pre-split Gini Index. 
 
 Gini Index calculations are slightly faster to compute as they do not require a logarithm and will always yield a result in the range 0-1, regardless of the amount of classes.
 
@@ -176,7 +168,7 @@ In this section we want to show the results we got from testing out the three di
 
 \subsection{Datasets}
 
-For this paper we used three different datasets found in the UCI machine learning repository \cite{Uci1998}:
+For this paper we used three different datasets found in the UCI machine learning repository \cite{Uci1998}. These datasets have all been used previously \cite{Brown04diversityin,gmd-6-1157-2013}:
 \begin{itemize}
 \item Breast: Breast Cancer Wisconsin (Diagnostic): 569 examples with 30 features, and 212 class 1 examples
 \item Heart: Statlog (Heart): 270 examples with 13 features, and 120 class 1 examples
