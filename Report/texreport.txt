@@ -255,42 +255,42 @@ Each model yields one point in ROC space, with $x$ being the FP rate and $y$ the
 
 To build the ROC curve of each model we used the algorithm introduced by \citeA{Fawcett2006}. Scoring values for the ROC curve are the deciding leaf's, Laplace corrected \cite{Provost2003}, class proportions.
 
-\begin{figure}[!ht ]
+\begin{figure}[!htp ]
 \caption{Breast ROC Graph}
 \label{fig:BreastRocG} 
 \centering
 \includegraphics[width=0.43\textwidth]{breastROCSpace}
 \end{figure}
 
-\begin{figure}[!ht ]
+\begin{figure}[!htp ]
 \caption{Heart ROC Graph}
 \label{fig:HeartRocG} 
 \centering
 \includegraphics[width=0.43\textwidth]{heartROCSpace}
 \end{figure}
 
-\begin{figure}[!ht]
+\begin{figure}[!htp]
 \caption{PopFailure ROC Graph}
 \label{fig:PopRocG} 
 \centering
 \includegraphics[width=0.43\textwidth]{popFailureROCSpace}
 \end{figure}
 
-\begin{figure}[!ht ]
+\begin{figure}[!htp ]
 \caption{Breast ROC Curves}
 \label{fig:BreastRocC} 
 \centering
 \includegraphics[width=0.45\textwidth]{breastROCCurves}
 \end{figure}
 
-\begin{figure}[!ht ]
+\begin{figure}[!htp ]
 \caption{Heart ROC Curves}
 \label{fig:HeartRocC} 
 \centering
 \includegraphics[width=0.45\textwidth]{heartROCCurves}
 \end{figure}
 
-\begin{figure}[!ht ]
+\begin{figure}[!htp ]
 \caption{PopFailure ROC Curves}
 \label{fig:PopRocC} 
 \centering
@@ -301,11 +301,11 @@ To build the ROC curve of each model we used the algorithm introduced by \citeA{
 
 \section{Analysis}
 
-In this section we analyze the collected data and explain what it means for each classifier's performance, which will then be the basis for our final conclusions.
+In this section we analyze the collected data and discuss each classifier's performance, which will then be the basis for our final conclusions.
 
 \subsection{Dataset: Breast}
 
-For the breast dataset, the training data (Table \ref{table:breastTr}) shows low error values and high F-measures for every classifier. The standard deviation for the error rate is low, but higher for the F-Measure. This can be explained by the varying amounts of class 1 examples contained in the different folds. With a steady error rate, the value for $TP$ is the major factor for the F-score. If there are only few positive examples to get right, $TP$ naturally stays smaller, so folds with a higher count of class 1 examples will get a higher value despite making the same amount of errors.
+For the breast dataset, the training data (Table \ref{table:breastTr}) shows low error values and high F-measures for every classifier. The standard deviation for the error rate is low, but higher for the F-Measure. This can be explained by the varying amounts of class 1 examples contained in the different folds. With a steady error rate, the value for $TP$ is the major factor for the F-score. If there are only few positive examples, $TP$ naturally stays smaller, so folds with a higher count of class 1 examples will get a higher value despite making the same amount of errors.
 
 The test results (Table \ref{table:breastTe}) show similar values to our training results, only $M$ performs considerably better than it did on the training data. Overall we can say that the data is well fitted.
 
@@ -315,15 +315,15 @@ From this dataset we can say that $F$ performs worse than its established counte
 
 \subsection{Dataset: Heart}
 
-The training data for the heart dataset (Table \ref{table:heartTr}) shows a wildly different result to what we saw with the breast set. We have a fair error rate with a steady deviation for each classifier, and low F-measures with less of a deviation than before. Here we make a lot of errors and fail to make many correct class 1 classifications, keeping the F-score consistently low.
+The training data for the heart dataset (Table \ref{table:heartTr}) shows a very different result to what we saw with breast. We have a fair error rate with a steady deviation for each classifier, and low F-measures with less of a deviation than before. Here we make a lot of errors and fail to make many correct class 1 classifications, keeping the F-score consistently low.
 
-We can assume that either the models are ill-fitted or the data is not really suited for splitting without any further data pre-processing. Looking to the test result (Table \ref{table:heartTe}) does not provide much help. We see the error rates for $M$ and $G$ higher than in training, but only barely not within the standard deviation. A considerably higher test error would have been a clear indicator for over fitting.
+We can assume that either the models are ill-fitted or the data is not suited for splitting without further preprocessing. Looking to the test result (Table \ref{table:heartTe}) does not provide much help. We see the error rates for $M$ and $G$ higher than in training, but only just outside the standard deviation. A considerably higher test error would be a clearer indicator of over fitting.
 
 The ROC graph (Figure \ref{fig:HeartRocG}) indicates similar trends as the one for the heart set (Figure \ref{fig:BreastRocG}): $M$ outperforms $F$, and both of them are more conservative than $G$. 
 
 Whereas the ROC graph suggests that $G$ performs best, the ROC Curves (Figure \ref{fig:HeartRocC}) do the opposite. The AUC also indicates that $M$ is indeed better at discerning the different classes. But we still do not know whether the data is under or over fit. Looking at the bottom left half of the graph we first see relatively straight increases and few errors for $G$ and $M$, with the rest of the curve looking a lot better for $M$, whereas $G$ sinks back to levels of $F$. We can say that $G$ and $M$ have a few pure leafs for class 1 and are able to correctly discern labels of class 1, but then fall short of producing pure leafs of class 0 as well, making it harder to discern the real class as more class 0 examples are in the mix.
 
-$F$ on the other hand produces neither pure leafs for class 1 nor for class 0. In fact it makes even mistakes in both regions, suggesting that its leafs are still very balanced, which is in line with what we observed about our F-measure criteria earlier: high deltas yield balanced purities on both sides. Based on this we can say that, even though we can not be certain, the model is likelier to under fit than over fit.
+$F$ on the other hand produces neither pure leafs for class 1 nor for class 0. In fact it makes even mistakes in both regions, suggesting that its leafs are still very balanced, which is in line with our earlier observation about F-measure: high deltas yield balanced purities on both sides. Based on this we can say (though we can not be certain) that the model is more likely to under fit than over fit.
 
 With this assumption in mind we can look at the breast (Figure \ref{fig:BreastRocC}) and heart (Figure \ref{fig:HeartRocC}) curves and observe another trend: $M$ appears to fit faster and overall better than $G$ and $F$, which fall behind. In the heart set we see $M$ converging evenly along margins towards the top left corner, with $G$ converging on the TP-rate first, and with a better fit hopefully also increasing its FP-rate.
 
@@ -343,11 +343,11 @@ For us this suggests that the lower fit attribute we observed for $F$ earlier wo
 
 There are many algorithms suitable for determining the split points of a decision tree. We show that the F-Measure algorithm described above can be effective, especially for heavily unbalanced datasets.
 
-Our analysis supports this hypothesis, where we show that $F$ performs better than $G$ and $M$ on unbalanced data, while falling behind on less biased label distributions.
+Our analysis supports this hypothesis, we show that $F$ performs better than $G$ and $M$ on unbalanced data, while falling behind on less biased data.
 
 However, as the difference in performance between the different algorithms is relatively small, and our analysis limited in scope, it is not clear if the F-Measure's slower fitting is a useful property of the metric, or whether the result shown here is unique to the datasets examined. Further work is required to confirm our hypothesis of $F's$ strengths.
 
-Amongst the issues that remain to be discussed are the effect of varying tree depth on $F$, $G$, and $M$,  to proof that the advantages of F-Measure splitting can't simply be evened out with fine tuning. Additionally, more datasets should be examined to discount the possibility that the results obtained here are not simply a quirk of the data we analyzed. We also focused on the $F_1$-score; the use of the $\beta$ factor as a training parameter, similar to the depth and minimum example count, also remains be explored. 
+Amongst the issues that remain to be discussed are the effect of varying tree depth on $F$, $G$, and $M$,  to prove that the advantages of F-Measure splitting can't simply be evened out with fine tuning. Additionally, more datasets should be examined to discount the possibility that the results obtained here are not a quirk of the data we analyzed. We also focused on the $F_1$-score; the use of the $\beta$ factor as a training parameter, similar to the depth and minimum example count, also remains be explored. 
 
 \bibliographystyle{apacite}
 
