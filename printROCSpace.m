@@ -1,4 +1,4 @@
-function printROCSpace(results, resultLabels)
+function printROCSpace(results, resultLabels, markers)
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -33,19 +33,23 @@ for i=1:resultsSize
     
     rocPointsX(i, 1) = FPRate;
     rocPointsY(i, 1) = TPRate;
+    
+    scatter(FPRate, TPRate, 140, markers(i));
+    
+    ar{i} = resultLabels(i);
+    
+    hold all;
 end
 
-scatter(rocPointsX, rocPointsY);
-hold on;
 plot([0, 1], [0, 1]);
 axis([0, 1, 0, 1]);
 
-for i=1:resultsSize
-    text(rocPointsX(i) + 0.01, rocPointsY(i) + 0.01, resultLabels(i));
-end
+legend(ar, 'Location', 'southeast');
 
 xlabel('FP-rate');
 ylabel('TP-rate');
+
+grid;
 
 hold off;
 

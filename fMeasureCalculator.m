@@ -1,4 +1,6 @@
 classdef fMeasureCalculator
+    %DEPRECATED - use otherFMeasureCalculator instead!
+    
     properties
         betaFactor = 1;
     end

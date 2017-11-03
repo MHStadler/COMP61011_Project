@@ -1,4 +1,6 @@
 classdef otherFMeasureCalculator
+    %New Implementation of Split on F-Measure
+    
     properties
         betaFactor = 1;
     end
