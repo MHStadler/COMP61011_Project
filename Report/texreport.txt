@@ -84,7 +84,7 @@ In binary classifications there are four possible results when assessing a class
 \end{figure}
 
 \setcounter{equation}{0}
-The resulting confusion matrix is the basis for many performance metrics, such as the F$_\beta$-measure, formally written as \cite{Nan2012}:
+The resulting confusion matrix (Figure \ref{fig:ConfusionMatrix}) is the basis for many performance metrics, such as the F$_\beta$-measure, formally written as \cite{Nan2012}:
 \begin{equation}F_\beta = \frac{(1 + \beta^2) \sum_{i}s_iy_i}{\beta^2 \sum_{i}y_i + \sum_{i}s_i}\end{equation}
 
 With the formal definitions for precision ($p$) and recall ($r$) \cite{Nan2012}:
