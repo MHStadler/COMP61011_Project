@@ -1,0 +1,360 @@
+% 
+% MSc COMP61011 Coursework Project
+% LaTeX Paper -- Proceedings Format
+% 
+
+% Original : Michael Stadler (ashwin@cc.gatech.edu)       29/10/2017
+% Modified : David Corlett (david.corlett-2@postgrad.manchester.ac.uk)      02/11/2017
+
+\documentclass[12pt,a4paper]{article}
+
+\usepackage{cogsci}
+\usepackage{pslatex}
+\usepackage{apacite}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{graphicx}
+\usepackage{commath}
+\graphicspath{ {images/} }
+\usepackage[utf8]{inputenc}
+\usepackage{titlesec}
+\setlength{\footskip}{2cm}
+\pagenumbering{arabic}
+
+\title{An Experimental Analysis of Decision Trees that split on the F-measure}
+ 
+\author{{\large \bf Michael Stadler (michael.stadler@postgrad.manchester.ac.uk)} \\
+  MSc. Advanced Computer Science
+  \AND {\large \bf David Corlett (david.corlett-2@postgrad.manchester.ac.uk)} \\
+  MSc. Advanced Computer Science}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+The F-measure is a commonly used performance metric. In this experimental analysis we use it as a split-criteria for a decision tree. We first introduce the two established methods of Information Gain and Gini Index that serve as reference points for our classifier's performance. Then we move on to the F-measure and how we used it as a split-criteria. Each classifier is tested on three different datasets in a 4-fold cross validation, with a fifth fold left out as an independent test set. The performance of each is assessed on the average error rate and F-measure in the cross fold validation, as well as the error rate, F-Measure, ROC graph and ROC curve for the test set. Based on these metrics we analyze the classifiers, assess our method's usefulness, and show that F-measure splitting looks promising for heavily biased datasets.
+
+\textbf{Keywords:} 
+Decision Tree; F-Measure; Information Gain; Gini-Index
+\end{abstract}
+
+\section{Introduction}
+
+\citeA{Dembczynski2013} notes that a high F-measure, a commonly used performance metric \cite{Dembczynski2011}, means that a classifier performs equally well on all of its classes. For this experiment we hope to exploit this by using the F-measure as a decision tree split criteria.
+
+We first summarize the more established criteria, Information Gain and Gini Index, that serve as reference points for our classifier's performance, followed by a more in-depth introduction to the F-measure, and how we used it in our decision tree.
+
+We then showcase the different datasets, and their properties, used in this experiment, as well as which metrics we collected from our different models.
+
+The report concludes with an analysis of the collected data, and an assessment of the usefulness of our classifier.
+
+\section{Splitting on Impurity Metrics}
+
+In order to assess the performance of tress that split on the F-measure, we also carried out our experiments with more commonly used split-criteria, Information Gain and Gini Index.
+
+\subsection{Information Gain}
+
+Information Gain, or Mutual Information, is a measure of difference between the entropy of the data prior to splitting, and the combined entropy of the two sides after the split \cite{Paninski2003}. The entropy ($H$) for a set of data ($D$) is defined as \cite{Paninski2003}:
+\setcounter{equation}{0}
+\begin{equation}H(D) = -\sum_{j}p_jlogp_j\end{equation}
+
+Where $p_j$ is the probability an example having the label $j$. The Information Gain ($I$) of splitting a set $D_p$ via a function $f$ is calculated by deducting the weighted sum of the entropies on each side from the entropy before the split \cite{Paninski2003}:
+\begin{equation} I(D_p,f) = H(D_p)-(\frac{n_l}{n_p}H(D_l)+\frac{n_r}{n_p}H(D_r))\end{equation}
+
+\subsection{Gini Index}
+Here, each side of the split ($D$) is assigned a Gini Index $G$ \cite{Breiman1984}:
+\begin{displaymath}G(D_x) = 1-\sum_{j}p_j^2\end{displaymath}
+
+Like with Information Gain, the weighted sum of the indices is deducted from the pre-split value. We recommend \citeA{Raileanu2004} for a more detailed description of the differences between Information Gain and Gini Index.
+
+\section{Splitting on the F$_\beta$-measure}
+
+This section first briefly introduces the basics of the F-measure and then goes on to illustrate how we used it as split-criteria in a decision tree.
+
+\subsection{The F$_\beta$-measure}
+In binary classifications there are four possible results when assessing a classification result. Examples of class 1 are called true positives ($TP$) if classified correctly, or false positives ($FP$) otherwise. Same goes for class 0, but in this case we speak of true negatives ($TN$) and false negatives ($FN$) \cite{Fawcett2006}.
+
+\begin{figure}[h]
+\caption{Binary Confusion Matrix \cite{Fawcett2006}}
+\label{fig:ConfusionMatrix} 
+\centering
+\includegraphics[width=0.25\textwidth]{confusionmatrix}
+\end{figure}
+
+\setcounter{equation}{0}
+The resulting confusion matrix (Figure \ref{fig:ConfusionMatrix}) is the basis for many performance metrics, such as the F$_\beta$-measure, formally written as \cite{Nan2012}:
+\begin{equation}F_\beta = \frac{(1 + \beta^2) \sum_{i}s_iy_i}{\beta^2 \sum_{i}y_i + \sum_{i}s_i}\end{equation}
+
+With the formal definitions for precision ($p$) and recall ($r$) \cite{Nan2012}:
+
+\begin{displaymath}p = \frac{\sum_{i}s_iy_i}{\sum_{i}s_i} r = \frac{\sum_{i}s_iy_i}{\sum_{i}y_i}\end{displaymath}
+
+it follows that the F$_\beta$-measure is the weighted harmonic mean of the two
+
+\begin{equation}F_\beta =\frac{(1 + \beta^2) p r}{\beta^2 p + r} \Leftrightarrow   \frac{(1 + \beta^2)}{\frac{\beta^2}{r} + \frac{1}{p}}\end{equation} 
+
+Informally, precision is the ratio of $TP$ to the number of examples classified as positive ($Y$), and recall the ratio of TP to the overall number of positives ($P$): \begin{math}p = \frac{TP}{Y} \Leftrightarrow \frac{TP}{TP + FP}\end{math} and \begin{math}r = \frac{TP}{P} \Leftrightarrow \frac{TP}{TP + FN}\end{math}. This allows us to express the F$_\beta$-measure based on TP, FP and FN:
+
+\begin{equation}\frac{(1 + \beta^2)}{\frac{\beta^2 (TP+FN)}{TP} + \frac{TP+FP}{TP}} \Leftrightarrow \frac{(1 + \beta^2)TP}{(1 + \beta^2)TP + \beta^2FN + FP} \end{equation} 
+
+We see, that a classifier with a high F$_\beta$-measure correctly classifies a lot of class 1 examples correctly, while making few classification errors. The $\beta$ factor gives weight to how much the classifier gets punished for misclassifying class 1 examples, though in praxis it is mostly just left at its default 1, also called the F$_1$-score or just F-measure \cite{Nan2012}.
+
+\subsection{The F-measure as split-criteria}
+
+The F-measure as a learning criteria has successfully been employed before, in varying ways for different models \cite{Dembczynski2013,Sawade2010}. Here we use the F-measure as split criteria in a decision tree, modeled after the Information Gain.
+
+To split on the F-measure we first find the majority class for each side of the split. That class is then considered the positive, regardless of its actual class. TP and FP are thus equal to the number of examples in the majority ($S_p$) and minority class ($S_n$) respectively, with FN being the number of examples of the majority class on the other side ($\neg S_p$).
+
+\setcounter{equation}{0}
+\begin{equation}F(S) = \frac{2 S_p}{(2S_p)+\neg S_p+S_n}\end{equation}
+
+The new metric is the sum of the weighted F-measure of each side, and the split with the highest delta to the pre-split F-measure is then used going forward. 
+
+\begin{equation}
+\Delta F = \abs{F(S) - (\frac{n_l}{n} F(S_l) + \frac{n_r}{n} F(S_r))} 
+\end{equation}
+
+High deltas yield balanced purities on both sides of the split, preventing the tree from over fitting on majority classes.
+
+\section{Experiments}
+
+In this section we want to show the results we got from testing out the three different split criteria, before analyzing these results.
+
+\subsection{Datasets}
+
+For this paper we used three proved \cite{Brown04diversityin,lucas2013} datasets from the UCI machine learning repository \cite{Uci1998}:
+\begin{itemize}
+\item Breast: Breast Cancer Wisconsin (Diagnostic): 569 examples with 30 features, and 212 class 1 examples
+\item Heart: Statlog (Heart): 270 examples with 13 features, and 120 class 1 examples
+\item PopFailure: Climate Model Simulation Crashes: 540 examples with 18 features, and 46 class 1 examples
+\end{itemize}
+
+Maximum depth and minimum element count per leaf indicate when the tree stops splitting. We left the maximum depth at its default of $10$ and defined a minimum element count for each set (based on preliminary testing): Heart $10$, Breast $20$, PopFailure $5$. We did not fine tune the parameters beyond that and each classifier was trained with the same constraints.
+
+For each dataset we first randomized the data then split it into five folds, four training sets, to be used in a 4-fold cross validation, and a fifth independent test set. We chose to leave out one fold from the k-fold cross validation to ensure a higher chance of an unbiased view of the performance of the model, as introduced by \citeA{Larson1931} and referenced by \citeA{Stone1974}.
+
+For each set, we trained a decision tree using our F-measure approach ($F$), Gini Index ($G$), and Mutual Information ($M$) in cross validation. From these models we were able to get the average error rate ($\bar{e}$), F-score ($\bar{f}$), and the accompanying standard deviations.
+
+\begin{table}[!ht]
+\begin{center} 
+\caption{Breast Training Results} 
+\label{table:breastTr} 
+\vskip 0.12in
+\begin{tabular}{ c | c | c | c | c }
+\hline
+Type & $\bar{e}$ & $\sigma$ & $\bar{f}$ & $\sigma$ \\
+\hline
+F & .0951 & .0254 & .8669 & .0401 \\
+G & .0885 & .0125 & .8778 & .0272 \\
+M & .0774 & .0111 & .8963 & .0212 \\
+\hline
+\end{tabular} 
+\end{center} 
+\end{table}
+
+\begin{table}[!ht]
+\begin{center} 
+\caption{Heart Training Results} 
+\label{table:heartTr} 
+\vskip 0.12in
+\begin{tabular}{ c | c | c | c | c }
+\hline
+Type & $\bar{e}$ & $\sigma$ & $\bar{f}$ & $\sigma$ \\
+\hline
+F & .2917 & .0532 & .6367 & .0838 \\
+G & .1759 & .0535 & .8058 & .0671 \\
+M & .1806 & .0532 & .7912 & .0730 \\
+\hline
+\end{tabular} 
+\end{center} 
+\end{table}
+
+\begin{table}[!ht]
+\begin{center} 
+\caption{PopFailure Training Results} 
+\label{table:popTr} 
+\vskip 0.12in
+\begin{tabular}{ c | c | c | c | c }
+\hline
+Type & $\bar{e}$ & $\sigma$ & $\bar{f}$ & $\sigma$ \\
+\hline
+F & .0949 & .0175 & .4332 & .2276 \\
+G & .0787 & .0404 & .5816 & .0684 \\
+M & .0833 & .0227 & .5066 & .0827 \\
+\hline
+\end{tabular} 
+\end{center} 
+\end{table}
+
+Per dataset and split criteria, we then chose the model with the lowest error rate as the best performing one to be tested with the test set. 
+
+\subsection{Test Results}
+
+Additionally to the error rate ($e$) and F-score ($f$) we used receiver operating characteristics (ROC) techniques, namely ROC graphs and curves, to investigate the performance of the trained models on the test set \cite{Fawcett2006}:
+
+\begin{itemize}
+\item A ROC graphs scatter plots the TP rate and FP rate of different classifiers, and allows for great comparison.
+\item A ROC curve plots one classifiers skill in correctly discerning class 1 from class 0 examples
+\item AUC is the area under the ROC curve, assigning it a numerical value
+\end{itemize}
+
+\begin{table}[!ht]
+\begin{center} 
+\caption{Breast Test Results} 
+\label{table:breastTe} 
+\vskip 0.12in
+\begin{tabular}{ c | c | c | c }
+\hline
+Type & $e$ & $f$ & AUC \\
+\hline
+F & .0940 & .8406 & .8485 \\
+G & .0940 & .8571 & .9800 \\
+M & .0342 & .9487 & .9904 \\
+\hline
+\end{tabular} 
+\end{center} 
+\end{table}
+
+\begin{table}[!ht]
+\begin{center} 
+\caption{Heart Test Results} 
+\label{table:heartTe} 
+\vskip 0.12in
+\begin{tabular}{ c | c | c | c }
+\hline
+Type & $e$ & $f$ & AUC \\
+\hline
+F & .2963 & .6190 & .7166 \\
+G & .2407 & .7234 & .8186 \\
+M & .2407 & .6829 & .8814 \\
+\hline
+\end{tabular} 
+\end{center} 
+\end{table}
+
+\begin{table}[!ht]
+\begin{center} 
+\caption{PopFailure Test Results} 
+\label{table:popTe} 
+\vskip 0.12in
+\begin{tabular}{ c | c | c | c }
+\hline
+Type & $e$ & $f$ & AUC \\
+\hline
+F & .0741 & .5000 & .9701 \\
+G & .0926 & .4444 & .7801 \\
+M & .0833 & .4706 & .7801 \\
+\hline
+\end{tabular} 
+\end{center} 
+\end{table}
+
+Each model yields one point in ROC space, with $x$ being the FP rate and $y$ the TP rate.
+
+To build the ROC curve of each model we used the algorithm introduced by \citeA{Fawcett2006}. Scoring values for the ROC curve are the deciding leaf's, Laplace corrected \cite{Provost2003}, class proportions.
+
+\begin{figure}[!htp ]
+\caption{Breast ROC Graph}
+\label{fig:BreastRocG} 
+\centering
+\includegraphics[width=0.45\textwidth]{breastROCSpace}
+\end{figure}
+
+\begin{figure}[!htp ]
+\caption{Heart ROC Graph}
+\label{fig:HeartRocG} 
+\centering
+\includegraphics[width=0.45\textwidth]{heartROCSpace}
+\end{figure}
+
+\begin{figure}[!htp]
+\caption{PopFailure ROC Graph}
+\label{fig:PopRocG} 
+\centering
+\includegraphics[width=0.45\textwidth]{popFailureROCSpace}
+\end{figure}
+
+\begin{figure}[!htp ]
+\caption{Breast ROC Curves}
+\label{fig:BreastRocC} 
+\centering
+\includegraphics[width=0.45\textwidth]{breastROCCurves}
+\end{figure}
+
+\begin{figure}[!htp ]
+\caption{Heart ROC Curves}
+\label{fig:HeartRocC} 
+\centering
+\includegraphics[width=0.45\textwidth]{heartROCCurves}
+\end{figure}
+
+\begin{figure}[!htp ]
+\caption{PopFailure ROC Curves}
+\label{fig:PopRocC} 
+\centering
+\includegraphics[width=0.45\textwidth]{popfailureROCCurves}
+\end{figure}
+
+\newpage
+
+\section{Analysis}
+
+In this section we analyze the collected data and discuss each classifier's performance, which will then be the basis for our final conclusions.
+
+\subsection{Dataset: Breast}
+
+For the breast dataset, the training data (Table \ref{table:breastTr}) shows low error values and high F-measures for every classifier. The standard deviation for the error rate is low, but higher for the F-Measure. This can be explained by the varying amounts of class 1 examples contained in the different folds. With a steady error rate, the value for $TP$ is the major factor for the F-score. If there are only few positive examples, $TP$ naturally stays smaller, so folds with a higher count of class 1 examples will get a higher value despite making the same amount of errors.
+
+The test results (Table \ref{table:breastTe}) show similar values to our training results, only $M$ performs considerably better than it did on the training data. Overall we can say that the data is well fitted.
+
+The ROC graph (Figure \ref{fig:BreastRocG}) displays this as well, with $M$ in the far left corner, $G$ liberally in the top right, and $F$ conservatively further to the bottom left \cite{Fawcett2006}. The ROC curves (Figure \ref{fig:BreastRocC}) show  that $G$ is slightly better than $F$ at discerning the correct class, with $M$ far ahead of both. Each classifier has a fair amount of points directly on the margins, indicating that they are sure of an example's class for most of them and correct in that certainty, meaning they have pure leafs.
+
+From this dataset we can say that $F$ performs worse than its established counterparts, but not considerably so.
+
+\subsection{Dataset: Heart}
+
+The training data for the heart dataset (Table \ref{table:heartTr}) shows a very different result to what we saw with breast. We have a fair error rate with a steady deviation for each classifier, and low F-measures with less of a deviation than before. Here we make a lot of errors and fail to make many correct class 1 classifications, keeping the F-score consistently low.
+
+We can assume that either the models are ill-fitted or the data is not suited for splitting without further preprocessing. Looking to the test result (Table \ref{table:heartTe}) does not provide much help. We see the error rates for $M$ and $G$ higher than in training, but only just outside the standard deviation. A considerably higher test error would be a clearer indicator of over fitting.
+
+The ROC graph (Figure \ref{fig:HeartRocG}) indicates similar trends as the one for the heart set (Figure \ref{fig:BreastRocG}): $M$ outperforms $F$, and both of them are more conservative than $G$. 
+
+Whereas the ROC graph suggests that $G$ performs best, the ROC Curves (Figure \ref{fig:HeartRocC}) do the opposite. The AUC also indicates that $M$ is indeed better at discerning the different classes. But we still do not know whether the data is under or over fit. Looking at the bottom left half of the graph we first see relatively straight increases and few errors for $G$ and $M$, with the rest of the curve looking a lot better for $M$, whereas $G$ sinks back to levels of $F$. We can say that $G$ and $M$ have a few pure leafs for class 1 and are able to correctly discern labels of class 1, but then fall short of producing pure leafs of class 0 as well, making it harder to discern the real class as more class 0 examples are in the mix.
+
+$F$ on the other hand produces neither pure leafs for class 1 nor for class 0. In fact it makes even mistakes in both regions, suggesting that its leafs are still very balanced, which is in line with our earlier observation about F-measure: high deltas yield balanced purities on both sides. Based on this we can say (though we can not be certain) that the model is more likely to under fit than over fit.
+
+With this assumption in mind we can look at the breast (Figure \ref{fig:BreastRocC}) and heart (Figure \ref{fig:HeartRocC}) curves and observe another trend: $M$ appears to fit faster and overall better than $G$ and $F$, which fall behind. In the heart set we see $M$ converging evenly along margins towards the top left corner, with $G$ converging on the TP-rate first, and with a better fit hopefully also increasing its FP-rate.
+
+More detailed experiments will be required to ascertain the exact reason for these poor split results, but we can say with some confidence that the models have under fitted. Considering this, we can also see that our $F$ criteria seems to generally fit slower than the others, always lacking a bit behind.
+
+\subsection{Dataset: PopFailure}
+
+This dataset is heavily biased, with only $8.5\%$ being of class 1. The training data (Table \ref{table:popTr}) makes it apparent that every classifier struggles here. We have low error rates with low deviations but also very low F-scores. The error rates are very low as it is hard to mistakenly classify class 0 examples, and the few misclassified positives do not affect the error rate too much. We get a low F-score because we fail at getting a high $TP$ rate. But in praxis we are often interested in exactly those different labels, and not in getting most of the irrelevant labels correct \cite{Dembczynski2013}.
+
+Noteworthy is the low deviation in the error rate and the high deviation of the F-Measure for $F$. It suggest that each training model creates similar spread leafs (low error deviation), but leading to wildly different results in $TP$. The test data (Table \ref{table:popTe}) is very similar to the training data, with each value well within the standard deviation.
+
+The ROC graph (Figure \ref{fig:PopRocG}) shows all the models as rather even and very conservative: they do not create a high $FP$ value, but also fail to make many correct predictions. The ROC curves (Figure \ref{fig:PopRocC}) show a similar picture, though it becomes apparent that $F$ does perform better than $G$ and $M$, achieving better purity for discerning the relevant class 1 examples.
+
+For us this suggests that the lower fit attribute we observed for $F$ earlier works to its advantage here, preventing it from latching on to the majority class, thus doing a better job at discerning the relevant labels in the long run.
+
+\section{Conclusion}
+
+There are many algorithms suitable for determining the split points of a decision tree. We show that the F-Measure algorithm described above can be effective, especially for heavily unbalanced datasets.
+
+Our analysis supports this hypothesis, we show that $F$ performs better than $G$ and $M$ on unbalanced data, while falling behind on less biased data.
+
+However, as the difference in performance between the different algorithms is relatively small, and our analysis limited in scope, it is not clear if the F-Measure's slower fitting is a useful property of the metric, or whether the result shown here is unique to the datasets examined. Further work is required to confirm our hypothesis of $F's$ strengths.
+
+Amongst the issues that remain to be discussed are the effect of varying tree depth on $F$, $G$, and $M$,  to prove that the advantages of F-Measure splitting can't simply be evened out with fine tuning. Additionally, more datasets should be examined to discount the possibility that the results obtained here are not a quirk of the data we analyzed. We also focused on the $F_1$-score; the use of the $\beta$ factor as a training parameter, similar to the depth and minimum example count, also remains be explored. 
+
+\bibliographystyle{apacite}
+
+\setlength{\bibleftmargin}{.125in}
+\setlength{\bibindent}{-\bibleftmargin}
+
+\bibliography{CogSci_Template}
+
+
+\end{document}
