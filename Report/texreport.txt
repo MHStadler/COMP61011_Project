@@ -259,21 +259,21 @@ To build the ROC curve of each model we used the algorithm introduced by \citeA{
 \caption{Breast ROC Graph}
 \label{fig:BreastRocG} 
 \centering
-\includegraphics[width=0.43\textwidth]{breastROCSpace}
+\includegraphics[width=0.45\textwidth]{breastROCSpace}
 \end{figure}
 
 \begin{figure}[!htp ]
 \caption{Heart ROC Graph}
 \label{fig:HeartRocG} 
 \centering
-\includegraphics[width=0.43\textwidth]{heartROCSpace}
+\includegraphics[width=0.45\textwidth]{heartROCSpace}
 \end{figure}
 
 \begin{figure}[!htp]
 \caption{PopFailure ROC Graph}
 \label{fig:PopRocG} 
 \centering
-\includegraphics[width=0.43\textwidth]{popFailureROCSpace}
+\includegraphics[width=0.45\textwidth]{popFailureROCSpace}
 \end{figure}
 
 \begin{figure}[!htp ]
